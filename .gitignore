@@ -1,6 +1,7 @@
 # Python virtual environments and caches
 backend/.venv/
 .venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -12,11 +13,14 @@ frontend/node_modules/
 node_modules/
 frontend/dist/
 dist/
+build/
+frontend/build/
 frontend/.vite/
 .vite/
 
 # Local runtime data
 backend/uploads/
+uploads/
 backend/light_inspector.db
 backend/*.db
 *.db

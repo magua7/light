@@ -62,7 +62,14 @@ lightInspector/
 - 地图监测展示
 - 预警列表与状态切换
 
-## 启动方式
+## 环境要求
+
+- Windows 10/11
+- Python 3.10 或更高版本
+- Node.js LTS
+- 请确保 `Python` 和 `npm` 已加入 PATH
+
+如果你是从 GitHub 拉取项目，不要直接复用别人机器里的 `.venv` 或 `node_modules`。这些目录属于本地环境，应由脚本在你的电脑上重新创建。
 
 ### 方式一：一键启动
 
@@ -72,6 +79,13 @@ lightInspector/
 - `start_backend.bat`：只启动后端
 - `start_frontend.bat`：只启动前端
 
+其中：
+
+- 后端脚本会自动检测 Python 是否可用
+- 如 `.venv` 不存在，会自动创建
+- 如 `.venv` 已存在但来自别的机器或已损坏，会自动删除并重建
+- 然后自动安装 `requirements.txt` 中的依赖并启动 FastAPI
+
 ### 方式二：手动启动
 
 #### 1. 启动后端
@@ -80,8 +94,9 @@ lightInspector/
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
 ```
 
 后端地址：
@@ -164,3 +179,12 @@ analyze_images(east_image, south_image, west_image, north_image)
 - 前端依赖可通过 `npm install` 重新安装
 - 后端依赖可通过 `pip install -r requirements.txt` 重新安装
 - 数据库和上传目录会在本地运行时自动生成
+
+如果这些目录之前已经被提交到 Git，需要再执行一次从版本控制中移除：
+
+```bash
+git rm -r --cached backend/.venv frontend/node_modules backend/uploads
+git rm --cached backend/light_inspector.db
+git add .gitignore
+git commit -m "chore: remove local runtime artifacts"
+```
