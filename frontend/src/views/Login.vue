@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { loginAccount, registerAccount } from '../api/auth'
+import { checkBackendHealth, loginAccount, registerAccount } from '../api/auth'
 import { persistAuth } from '../utils/auth'
 
 const route = useRoute()
@@ -25,6 +25,16 @@ const registerForm = reactive({
 
 const redirectPath = computed(() => route.query.redirect || '/dashboard')
 
+async function ensureBackendAvailable() {
+  try {
+    await checkBackendHealth()
+    return true
+  } catch {
+    ElMessage.error('后端当前未正常响应，请先确认后端已启动；如果 8000 端口被旧 Python 进程占用，请先结束旧进程后再重试。')
+    return false
+  }
+}
+
 async function handleLogin() {
   if (!loginForm.username.trim() || !loginForm.password.trim()) {
     ElMessage.warning('请输入用户名和密码')
@@ -33,6 +43,8 @@ async function handleLogin() {
 
   loading.value = true
   try {
+    const backendReady = await ensureBackendAvailable()
+    if (!backendReady) return
     if (import.meta.env.DEV) {
       console.info('[auth] POST /api/auth/login')
     }
@@ -70,6 +82,8 @@ async function handleRegister() {
 
   loading.value = true
   try {
+    const backendReady = await ensureBackendAvailable()
+    if (!backendReady) return
     if (import.meta.env.DEV) {
       console.info('[auth] POST /api/auth/register')
     }

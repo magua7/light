@@ -3,6 +3,9 @@ import { ElMessage } from 'element-plus'
 
 import { clearAuth, getToken } from '../utils/auth'
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000/api' : '/api')
+
 function buildErrorMessage(error) {
   const requestUrl = error.config?.url || ''
   const isLoginRequest = requestUrl.includes('/auth/login')
@@ -34,13 +37,13 @@ function buildErrorMessage(error) {
 }
 
 const service = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   timeout: 15000
 })
 
 service.interceptors.request.use((config) => {
   const token = getToken()
-  if (token) {
+  if (token && !config.skipAuthToken) {
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
@@ -50,16 +53,20 @@ service.interceptors.response.use(
   (response) => {
     const payload = response.data
     if (payload.code !== 0) {
-      ElMessage.error(payload.message || '请求失败')
+      if (!response.config?.silentError) {
+        ElMessage.error(payload.message || '请求失败')
+      }
       return Promise.reject(new Error(payload.message || 'request error'))
     }
     return payload.data
   },
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !error.config?.skipAuthCleanup) {
       clearAuth()
     }
-    ElMessage.error(buildErrorMessage(error))
+    if (!error.config?.silentError) {
+      ElMessage.error(buildErrorMessage(error))
+    }
     return Promise.reject(error)
   }
 )

@@ -81,7 +81,7 @@ async function ensureAuthenticated() {
   }
 
   if (!authCheckTask) {
-    authCheckTask = fetchCurrentUser()
+    authCheckTask = fetchCurrentUser({ silentError: true, skipAuthCleanup: true })
       .then((user) => {
         setCurrentUser(user)
         verifiedToken = token
