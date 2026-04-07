@@ -1,7 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+import { fetchCurrentUser } from '../api/auth'
 import MainLayout from '../layout/MainLayout.vue'
+import { clearAuth, getCurrentUser, getToken, isLoggedIn, setCurrentUser } from '../utils/auth'
 import Dashboard from '../views/Dashboard.vue'
+import Login from '../views/Login.vue'
 import MapMonitor from '../views/MapMonitor.vue'
 import TaskCreate from '../views/TaskCreate.vue'
 import TaskDetail from '../views/TaskDetail.vue'
@@ -11,6 +14,15 @@ import WarningList from '../views/WarningList.vue'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: {
+        title: '登录',
+        public: true
+      }
+    },
     {
       path: '/',
       component: MainLayout,
@@ -32,7 +44,7 @@ const router = createRouter({
           path: '/tasks/:id',
           name: 'task-detail',
           component: TaskDetail,
-          meta: { title: '检测详情' }
+          meta: { title: '检测报告' }
         },
         {
           path: '/tasks/history',
@@ -55,6 +67,66 @@ const router = createRouter({
       ]
     }
   ]
+})
+
+let verifiedToken = ''
+let authCheckTask = null
+
+async function ensureAuthenticated() {
+  const token = getToken()
+  if (!token) return false
+
+  if (verifiedToken === token && getCurrentUser()) {
+    return true
+  }
+
+  if (!authCheckTask) {
+    authCheckTask = fetchCurrentUser()
+      .then((user) => {
+        setCurrentUser(user)
+        verifiedToken = token
+        return true
+      })
+      .catch(() => {
+        clearAuth()
+        verifiedToken = ''
+        return false
+      })
+      .finally(() => {
+        authCheckTask = null
+      })
+  }
+
+  return authCheckTask
+}
+
+router.beforeEach(async (to) => {
+  const publicPage = to.meta.public === true
+  if (!publicPage && !isLoggedIn()) {
+    return {
+      path: '/login',
+      query: { redirect: to.fullPath }
+    }
+  }
+
+  if (publicPage) {
+    if (!isLoggedIn()) return true
+    const authenticated = await ensureAuthenticated()
+    if (authenticated && to.path === '/login') {
+      return '/dashboard'
+    }
+    return true
+  }
+
+  const authenticated = await ensureAuthenticated()
+  if (!authenticated) {
+    return {
+      path: '/login',
+      query: { redirect: to.fullPath }
+    }
+  }
+
+  return true
 })
 
 export default router

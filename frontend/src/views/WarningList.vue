@@ -32,7 +32,7 @@ async function loadWarnings() {
 async function toggleStatus(row) {
   const nextStatus = row.process_status === '已处理' ? '未处理' : '已处理'
   await updateWarningStatus(row.id, nextStatus)
-  ElMessage.success('预警状态更新成功')
+  ElMessage.success(nextStatus === '已处理' ? '已标记为处理完成' : '已重新标记为待处理')
   await loadWarnings()
 }
 
@@ -48,18 +48,21 @@ onMounted(loadWarnings)
     <div class="page-head">
       <div>
         <div class="page-title">预警列表</div>
-        <div class="page-desc">展示中高风险与高风险任务，可标记已处理或未处理。</div>
+        <div class="page-desc">
+          用于展示中高风险与高风险任务，并记录处理状态，
+          适合在比赛演示时说明系统的预警闭环能力。
+        </div>
       </div>
     </div>
 
     <div class="stats-grid">
-      <StatCard title="预警总数" :value="statistics.total" description="进入预警池的任务总量" accent="#2563eb" />
-      <StatCard title="高风险任务" :value="statistics.critical" description="综合评分较高，建议重点复核" accent="#ef4444" />
-      <StatCard title="待处理" :value="statistics.pending" description="尚未闭环处理的预警任务" accent="#f59e0b" />
-      <StatCard title="已处理" :value="statistics.processed" description="已完成治理跟进或人工复核" accent="#10b981" />
+      <StatCard title="预警总数" :value="statistics.total" description="进入预警池的任务总量" accent="#f1ede6" />
+      <StatCard title="高风险任务" :value="statistics.critical" description="建议优先安排复核的样本点位" accent="#a86558" />
+      <StatCard title="待处理" :value="statistics.pending" description="尚未完成闭环跟进的预警任务" accent="#b59572" />
+      <StatCard title="已处理" :value="statistics.processed" description="已完成人工复核或治理跟进" accent="#87917e" />
     </div>
 
-    <PanelCard title="预警任务表">
+    <PanelCard title="预警台账" subtitle="保留处理状态切换能力，便于展示从发现到跟进的完整链路。">
       <el-table :data="warnings" stripe>
         <el-table-column prop="location_name" label="地点名称" min-width="160" />
         <el-table-column prop="task_no" label="任务编号" min-width="170" />
@@ -89,15 +92,25 @@ onMounted(loadWarnings)
             <el-tag :type="row.process_status === '已处理' ? 'success' : 'info'">{{ row.process_status }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="goDetail(row.task_id)">详情</el-button>
-            <el-button type="warning" link @click="toggleStatus(row)">
-              {{ row.process_status === '已处理' ? '标记未处理' : '标记已处理' }}
-            </el-button>
+            <div class="warning-actions">
+              <el-button type="primary" link @click="goDetail(row.task_id)">查看报告</el-button>
+              <el-button type="warning" link @click="toggleStatus(row)">
+                {{ row.process_status === '已处理' ? '重新标记待处理' : '标记为已处理' }}
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
     </PanelCard>
   </div>
 </template>
+
+<style scoped>
+.warning-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+</style>

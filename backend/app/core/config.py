@@ -8,6 +8,9 @@ class Settings:
     upload_dir: Path = project_dir / "uploads"
     database_path: Path = project_dir / "light_inspector.db"
     cors_origins: list[str] = ["*"]
+    jwt_secret_key: str = "light-inspector-demo-secret-2026"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24 * 7
 
 
 settings = Settings()

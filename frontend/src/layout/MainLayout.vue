@@ -3,13 +3,19 @@ import {
   DataAnalysis,
   Location,
   Opportunity,
+  SwitchButton,
   UploadFilled,
   Warning
 } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+
+import { logoutAccount } from '../api/auth'
+import { clearAuth, getLoginUser } from '../utils/auth'
 
 const route = useRoute()
+const router = useRouter()
 
 const activeMenu = computed(() => {
   if (route.path.startsWith('/tasks/create')) return '/tasks/create'
@@ -18,18 +24,36 @@ const activeMenu = computed(() => {
   if (route.path.startsWith('/warnings')) return '/warnings'
   return '/dashboard'
 })
+
+const headerTitle = computed(() => route.meta.title || '首页大屏')
+const loginUser = computed(() => getLoginUser() || '未命名用户')
+
+async function handleLogout() {
+  try {
+    await logoutAccount()
+  } catch {
+    // 即使后端登出失败，也要保证本地登录态被清理。
+  } finally {
+    clearAuth()
+    ElMessage.success('已退出登录')
+    router.push('/login')
+  }
+}
 </script>
 
 <template>
   <el-container class="app-shell">
-    <el-aside class="app-aside" width="240px">
+    <el-aside class="app-aside" width="248px">
       <div class="brand-wrap">
-        <div class="brand-badge">LI</div>
+        <div class="brand-badge">光</div>
         <div>
-          <div class="brand-title">Light Inspector</div>
-          <div class="brand-subtitle">城市光污染监测平台</div>
+          <div class="brand-title">城市光环境监测</div>
+          <div class="brand-subtitle">LightInspector</div>
         </div>
       </div>
+
+      <div class="aside-caption">夜间光环境监测与智能评级平台</div>
+
       <el-menu :default-active="activeMenu" router class="app-menu">
         <el-menu-item index="/dashboard">
           <el-icon><DataAnalysis /></el-icon>
@@ -52,14 +76,28 @@ const activeMenu = computed(() => {
           <span>预警列表</span>
         </el-menu-item>
       </el-menu>
+
+      <div class="aside-footer">
+        <div class="aside-footer__label">监测区域</div>
+        <div class="aside-footer__value">湖南 · 长沙夜间光环境</div>
+      </div>
     </el-aside>
 
-    <el-container>
+    <el-container class="app-stage">
       <el-header class="app-header">
-        <div>
-          <div class="header-title">城市光污染监测与智能评级系统</div>
+        <div class="header-content">
+          <div class="header-kicker">城市光环境监测与智能评级系统</div>
+          <div class="header-title">{{ headerTitle }}</div>
+        </div>
+        <div class="header-actions">
+          <span class="header-user">{{ loginUser }}</span>
+          <el-button text class="header-logout" @click="handleLogout">
+            <el-icon><SwitchButton /></el-icon>
+            退出登录
+          </el-button>
         </div>
       </el-header>
+
       <el-main class="app-main">
         <router-view />
       </el-main>

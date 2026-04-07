@@ -9,11 +9,11 @@ from app.models import DetectionTask, WarningRecord
 
 class DashboardService:
     level_colors = {
-        "优": "#4caf50",
-        "良": "#8bc34a",
-        "中": "#ffb300",
-        "较差": "#ff7043",
-        "差": "#e53935",
+        "优": "#8e9b8a",
+        "良": "#a7abae",
+        "中": "#b99e72",
+        "较差": "#a56c5f",
+        "差": "#7d4d46",
     }
 
     def get_overview(self, db: Session) -> dict:
@@ -116,7 +116,7 @@ class DashboardService:
                 "total_score": task.total_score,
                 "blue_risk": task.blue_risk,
                 "created_at": task.created_at,
-                "marker_color": self.level_colors.get(task.level or "", "#409eff"),
+                "marker_color": self.level_colors.get(task.level or "", "#d2ccc1"),
             }
             for task in tasks
         ]

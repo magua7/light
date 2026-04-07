@@ -7,7 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.database.base import Base
 from app.database.session import SessionLocal, engine
-from app.models import DetectionImage, DetectionResult, DetectionTask, WarningRecord
+from app.models import DetectionImage, DetectionResult, DetectionTask, User, WarningRecord
+from app.routers.auth import router as auth_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.health import router as health_router
 from app.routers.tasks import router as tasks_router
@@ -38,6 +39,7 @@ app.add_middleware(
 
 app.mount("/uploads", StaticFiles(directory=str(settings.upload_dir)), name="uploads")
 
+app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(health_router, prefix=settings.api_prefix)
 app.include_router(tasks_router, prefix=settings.api_prefix)
 app.include_router(dashboard_router, prefix=settings.api_prefix)

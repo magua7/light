@@ -1,9 +1,16 @@
 export const directionMap = {
-  east: '东向',
-  south: '南向',
-  west: '西向',
-  north: '北向'
+  east: '图片1',
+  south: '图片2',
+  west: '图片3',
+  north: '图片4'
 }
+
+export const imageSlotOptions = [
+  { key: 'east', title: '图片1' },
+  { key: 'south', title: '图片2' },
+  { key: 'west', title: '图片3' },
+  { key: 'north', title: '图片4' }
+]
 
 export const typeMap = {
   ad_light: '广告光源',
@@ -14,18 +21,28 @@ export const typeMap = {
 
 export const levelTagMap = {
   优: 'success',
-  良: 'success',
+  良: 'info',
   中: 'warning',
   较差: 'danger',
   差: 'danger'
 }
 
 export const levelColorMap = {
-  优: '#4caf50',
-  良: '#8bc34a',
-  中: '#ffb300',
-  较差: '#ff7043',
-  差: '#e53935'
+  优: '#8e9b8a',
+  良: '#a7abae',
+  中: '#b99e72',
+  较差: '#a56c5f',
+  差: '#7d4d46'
+}
+
+export const chartPalette = {
+  bright: '#f1ede6',
+  light: '#d2ccc1',
+  mid: '#8f8a81',
+  muted: '#5c5a55',
+  warning: '#b59572',
+  danger: '#a86558',
+  success: '#86937f'
 }
 
 export function formatDirection(value) {
@@ -48,4 +65,9 @@ export function formatImageUrl(path) {
   if (!path) return ''
   if (path.startsWith('http')) return path
   return path
+}
+
+export function formatCoordinate(longitude, latitude) {
+  if (longitude == null || latitude == null) return '-'
+  return `${Number(longitude).toFixed(3)}, ${Number(latitude).toFixed(3)}`
 }

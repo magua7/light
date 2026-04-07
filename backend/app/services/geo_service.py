@@ -8,12 +8,12 @@ class GeoService:
     """
 
     region_names = [
-        "中心城区",
-        "商业密集区",
-        "居住混合区",
-        "滨江景观带",
-        "高校片区",
-        "工业过渡区",
+        "核心商圈",
+        "沿江景观区",
+        "高校科研片区",
+        "交通枢纽区",
+        "生态居住区",
+        "历史街区",
     ]
 
     def resolve_location(self, longitude: float, latitude: float, location_name: str | None = None) -> dict:
@@ -24,8 +24,8 @@ class GeoService:
         return {
             "region_name": region_name,
             "display_name": display_name,
-            "province": "示例省",
-            "city": "示例市",
+            "province": "湖南省",
+            "city": "长沙市",
             "coordinates": {
                 "longitude": longitude,
                 "latitude": latitude,

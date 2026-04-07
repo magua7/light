@@ -14,7 +14,7 @@ defineProps({
   },
   accent: {
     type: String,
-    default: '#2563eb'
+    default: '#f1ede6'
   }
 })
 </script>

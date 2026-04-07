@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 
 import { fetchTaskList } from '../api/tasks'
 import PanelCard from '../components/PanelCard.vue'
-import { formatDateTime, levelTagMap } from '../utils/dicts'
+import { formatCoordinate, formatDateTime, levelTagMap } from '../utils/dicts'
 
 const router = useRouter()
 const loading = ref(false)
@@ -77,49 +77,48 @@ onMounted(loadTasks)
     <div class="page-head">
       <div>
         <div class="page-title">历史记录</div>
-        <div class="page-desc">支持按时间、等级、地点关键字筛选检测任务，并分页查看。</div>
+        <div class="page-desc">
+          用于回溯已完成的检测任务。支持按地点、评级和时间范围筛选，
+          便于在演示时快速找到代表性样本并进入报告页。
+        </div>
       </div>
     </div>
 
-    <PanelCard title="筛选条件">
-      <el-row :gutter="16">
-        <el-col :md="8" :sm="24">
-          <el-input v-model="filters.keyword" placeholder="请输入地点名称关键字" clearable />
-        </el-col>
-        <el-col :md="6" :sm="24">
-          <el-select v-model="filters.level" placeholder="请选择评级" clearable style="width: 100%;">
-            <el-option label="优" value="优" />
-            <el-option label="良" value="良" />
-            <el-option label="中" value="中" />
-            <el-option label="较差" value="较差" />
-            <el-option label="差" value="差" />
-          </el-select>
-        </el-col>
-        <el-col :md="7" :sm="24">
-          <el-date-picker
-            v-model="filters.dateRange"
-            type="daterange"
-            value-format="YYYY-MM-DD"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            style="width: 100%;"
-          />
-        </el-col>
-        <el-col :md="3" :sm="24" style="display: flex; gap: 8px;">
-          <el-button type="primary" @click="handleSearch">查询</el-button>
+    <PanelCard title="筛选条件" subtitle="按关键词、评级和时间段过滤历史样本。">
+      <div class="filter-grid">
+        <el-input v-model="filters.keyword" placeholder="请输入地点名称或任务编号关键字" clearable />
+
+        <el-select v-model="filters.level" placeholder="请选择评级" clearable>
+          <el-option label="优" value="优" />
+          <el-option label="良" value="良" />
+          <el-option label="中" value="中" />
+          <el-option label="较差" value="较差" />
+          <el-option label="差" value="差" />
+        </el-select>
+
+        <el-date-picker
+          v-model="filters.dateRange"
+          type="daterange"
+          value-format="YYYY-MM-DD"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+
+        <div class="action-group">
+          <el-button type="primary" @click="handleSearch">筛选</el-button>
           <el-button @click="handleReset">重置</el-button>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </PanelCard>
 
-    <PanelCard title="任务列表">
+    <PanelCard title="任务列表" subtitle="点击任一记录可查看对应的检测报告。">
       <el-table :data="tableData" stripe v-loading="loading">
         <el-table-column prop="task_no" label="任务编号" min-width="180" />
         <el-table-column prop="location_name" label="地点名称" min-width="170" />
-        <el-table-column label="经纬度" min-width="180">
+        <el-table-column label="经纬度" min-width="190">
           <template #default="{ row }">
-            {{ row.longitude }}, {{ row.latitude }}
+            <span class="coordinate-text">{{ formatCoordinate(row.longitude, row.latitude) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="评分" width="100">
@@ -142,14 +141,14 @@ onMounted(loadTasks)
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="110" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="goDetail(row.id)">详情</el-button>
+            <el-button type="primary" link @click="goDetail(row.id)">查看报告</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+      <div class="table-pagination">
         <el-pagination
           background
           layout="total, sizes, prev, pager, next"
@@ -164,3 +163,29 @@ onMounted(loadTasks)
     </PanelCard>
   </div>
 </template>
+
+<style scoped>
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 1.1fr auto;
+  gap: 16px;
+}
+
+.coordinate-text {
+  color: var(--text-main);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.table-pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 960px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
