@@ -33,6 +33,9 @@ async function handleLogin() {
 
   loading.value = true
   try {
+    if (import.meta.env.DEV) {
+      console.info('[auth] POST /api/auth/login')
+    }
     const data = await loginAccount({
       username: loginForm.username.trim(),
       password: loginForm.password
@@ -40,6 +43,10 @@ async function handleLogin() {
     persistAuth(data.access_token, data.user)
     ElMessage.success('登录成功')
     router.push(redirectPath.value)
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[auth] login request failed', error)
+    }
   } finally {
     loading.value = false
   }
@@ -63,6 +70,9 @@ async function handleRegister() {
 
   loading.value = true
   try {
+    if (import.meta.env.DEV) {
+      console.info('[auth] POST /api/auth/register')
+    }
     await registerAccount({
       username: registerForm.username.trim(),
       password: registerForm.password
@@ -74,6 +84,10 @@ async function handleRegister() {
     registerForm.password = ''
     registerForm.confirmPassword = ''
     activeTab.value = 'login'
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('[auth] register request failed', error)
+    }
   } finally {
     loading.value = false
   }
@@ -97,21 +111,32 @@ async function handleRegister() {
       <section class="login-panel">
         <el-tabs v-model="activeTab" stretch class="auth-tabs">
           <el-tab-pane label="登录" name="login">
-            <el-form class="auth-form" @submit.prevent="handleLogin">
-              <el-form-item label="用户名">
-                <el-input v-model="loginForm.username" placeholder="请输入用户名">
+            <el-form
+              :model="loginForm"
+              label-position="left"
+              label-width="74px"
+              class="auth-form"
+              @submit.prevent="handleLogin"
+            >
+              <el-form-item label="用户名" class="auth-form__item">
+                <el-input
+                  v-model="loginForm.username"
+                  placeholder="请输入用户名"
+                  class="auth-input"
+                >
                   <template #prefix>
                     <el-icon><User /></el-icon>
                   </template>
                 </el-input>
               </el-form-item>
 
-              <el-form-item label="密码">
+              <el-form-item label="密码" class="auth-form__item">
                 <el-input
                   v-model="loginForm.password"
                   type="password"
                   show-password
                   placeholder="请输入密码"
+                  class="auth-input"
                   @keyup.enter="handleLogin"
                 >
                   <template #prefix>
@@ -127,21 +152,32 @@ async function handleRegister() {
           </el-tab-pane>
 
           <el-tab-pane label="注册" name="register">
-            <el-form class="auth-form" @submit.prevent="handleRegister">
-              <el-form-item label="用户名">
-                <el-input v-model="registerForm.username" placeholder="请设置用户名">
+            <el-form
+              :model="registerForm"
+              label-position="left"
+              label-width="74px"
+              class="auth-form"
+              @submit.prevent="handleRegister"
+            >
+              <el-form-item label="用户名" class="auth-form__item">
+                <el-input
+                  v-model="registerForm.username"
+                  placeholder="请设置用户名"
+                  class="auth-input"
+                >
                   <template #prefix>
                     <el-icon><User /></el-icon>
                   </template>
                 </el-input>
               </el-form-item>
 
-              <el-form-item label="密码">
+              <el-form-item label="密码" class="auth-form__item">
                 <el-input
                   v-model="registerForm.password"
                   type="password"
                   show-password
                   placeholder="请设置至少 6 位密码"
+                  class="auth-input"
                 >
                   <template #prefix>
                     <el-icon><Lock /></el-icon>
@@ -149,12 +185,13 @@ async function handleRegister() {
                 </el-input>
               </el-form-item>
 
-              <el-form-item label="确认密码">
+              <el-form-item label="确认密码" class="auth-form__item">
                 <el-input
                   v-model="registerForm.confirmPassword"
                   type="password"
                   show-password
                   placeholder="请再次输入密码"
+                  class="auth-input"
                   @keyup.enter="handleRegister"
                 >
                   <template #prefix>
@@ -269,9 +306,45 @@ async function handleRegister() {
   margin-top: 8px;
 }
 
+.auth-form__item {
+  margin-bottom: 18px;
+}
+
 .login-submit {
   width: 100%;
+  height: 46px;
   margin-top: 10px;
+}
+
+:deep(.auth-form .el-form-item__label) {
+  justify-content: flex-start;
+  padding-right: 14px;
+  color: var(--text-sub);
+  line-height: 46px;
+}
+
+:deep(.auth-form .el-form-item__content) {
+  min-width: 0;
+}
+
+:deep(.auth-form .el-input) {
+  width: 100%;
+}
+
+:deep(.auth-form .el-input__wrapper) {
+  min-height: 46px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+:deep(.auth-form .el-input__prefix-inner),
+:deep(.auth-form .el-input__suffix-inner) {
+  display: inline-flex;
+  align-items: center;
+}
+
+:deep(.auth-form .el-input__suffix-inner) {
+  min-width: 18px;
 }
 
 :deep(.auth-tabs .el-tabs__header) {

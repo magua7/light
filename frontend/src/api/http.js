@@ -3,6 +3,36 @@ import { ElMessage } from 'element-plus'
 
 import { clearAuth, getToken } from '../utils/auth'
 
+function buildErrorMessage(error) {
+  const requestUrl = error.config?.url || ''
+  const isLoginRequest = requestUrl.includes('/auth/login')
+
+  if (error.code === 'ECONNABORTED') {
+    return isLoginRequest
+      ? '登录接口请求超时，请检查后端是否正常启动。'
+      : '接口请求超时，请稍后重试。'
+  }
+
+  if (!error.response) {
+    return isLoginRequest
+      ? '无法连接到后端服务，请确认后端已启动并监听 http://127.0.0.1:8000。'
+      : '无法连接到后端服务，请检查网络或服务状态。'
+  }
+
+  const detail = error.response?.data?.detail
+  if (detail) return detail
+
+  if (error.response.status === 401) {
+    return isLoginRequest ? '用户名或密码错误。' : '当前登录状态已失效，请重新登录。'
+  }
+
+  if (error.response.status >= 500) {
+    return '服务器异常，请查看后端日志。'
+  }
+
+  return error.message || '网络请求失败'
+}
+
 const service = axios.create({
   baseURL: '/api',
   timeout: 15000
@@ -26,11 +56,10 @@ service.interceptors.response.use(
     return payload.data
   },
   (error) => {
-    const detail = error.response?.data?.detail
     if (error.response?.status === 401) {
       clearAuth()
     }
-    ElMessage.error(detail || error.message || '网络请求失败')
+    ElMessage.error(buildErrorMessage(error))
     return Promise.reject(error)
   }
 )

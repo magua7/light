@@ -26,6 +26,8 @@ lightInspector/
 │  │  ├─ services/
 │  │  ├─ utils/
 │  │  └─ main.py
+│  ├─ scripts/
+│  │  └─ bootstrap_backend.py
 │  └─ requirements.txt
 ├─ frontend/
 │  ├─ src/
@@ -67,11 +69,13 @@ lightInspector/
 - Windows 10/11
 - Python 3.10 或更高版本
 - Node.js LTS
-- 请确保 `Python` 和 `npm` 已加入 PATH
+- 请确保 `python` 和 `npm` 已加入 PATH
 
 如果你是从 GitHub 拉取项目，不要直接复用别人机器里的 `.venv` 或 `node_modules`。这些目录属于本地环境，应由脚本在你的电脑上重新创建。
 
-### 方式一：一键启动
+## 推荐启动方式
+
+### Windows 图形方式
 
 可直接双击根目录下的脚本：
 
@@ -81,38 +85,26 @@ lightInspector/
 
 其中：
 
-- 后端脚本会自动检测 Python 是否可用
-- 如 `.venv` 不存在，会自动创建
-- 如 `.venv` 已存在但来自别的机器、已损坏或缺少 `pyvenv.cfg`，会尝试删除并重建
-- 如果 `.venv` 被占用删不掉，会自动回退创建 `.venv_bootstrap`
-- 安装依赖时会先走默认 pip 源，失败后自动尝试清华镜像
-- 如检测到代理变量，还会额外尝试一次“去代理重试”
-- 然后自动安装 `requirements.txt` 中的依赖并启动 FastAPI
+- `start_backend.bat` 只负责检查系统里是否有 Python，并调用 `backend/scripts/bootstrap_backend.py`
+- `bootstrap_backend.py` 会自动检查 Python 版本、准备虚拟环境、安装依赖并启动 FastAPI
+- 如果 `.venv` 已损坏或来自别的机器，脚本会自动重建
+- 如果 `.venv` 被占用删不掉，脚本会自动回退到 `.venv_bootstrap`
+- pip 默认源失败后，会自动用清华镜像重试一次
+- 如果检测到代理变量，还会额外给出更明确的网络/代理提示
 - 前端脚本会自动检测 `node` 和 `npm`
-- 如 `node_modules` 不存在或不完整，会自动执行 `npm ci` 或 `npm install`
-- 如 npm 默认源失败，会自动尝试一次 `npmmirror`
+- `node_modules` 不存在或不完整时，会自动执行 `npm ci` 或 `npm install`
+- npm 默认源失败时，会自动重试 `npmmirror`
 
-如果你是从旧版本仓库升级过来的，并且以前仓库里已经混入过 `.venv`，也可以手动删除一次 `backend/.venv/` 后再运行脚本。
+### 命令行方式
 
-### 方式二：手动启动
-
-#### 1. 启动后端
+后端：
 
 ```bash
 cd backend
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m uvicorn app.main:app --reload
+python scripts/bootstrap_backend.py
 ```
 
-后端地址：
-
-- `http://127.0.0.1:8000`
-- 健康检查：`http://127.0.0.1:8000/api/health`
-
-#### 2. 启动前端
+前端：
 
 ```bash
 cd frontend
@@ -120,33 +112,51 @@ npm install
 npm run dev
 ```
 
-前端地址：
+访问地址：
 
-- `http://127.0.0.1:5173`
+- 后端：`http://127.0.0.1:8000`
+- 后端健康检查：`http://127.0.0.1:8000/api/health`
+- 前端：`http://127.0.0.1:5173`
+
+## 后端启动器会自动做什么
+
+`backend/scripts/bootstrap_backend.py` 会按下面流程执行：
+
+1. 检查当前系统 Python 版本是否至少为 3.10
+2. 优先检查 `backend/.venv`
+3. 如果 `.venv` 无效，尝试删除并重建
+4. 如果 `.venv` 被占用删不掉，自动回退到 `backend/.venv_bootstrap`
+5. 使用虚拟环境里的 Python 执行：
+   - `python -m pip install --upgrade pip`
+   - `python -m pip install -r requirements.txt`
+6. 最后启动：
+   - `python -m uvicorn app.main:app --reload`
+
+整个过程都不会依赖作者电脑上的 Python 绝对路径。
 
 ## 常见问题
 
 ### 1. 出现 `No Python at "E:\python3.10\python.exe"`
 
-这通常说明仓库里混入了作者电脑上生成的旧 `.venv`。Windows 虚拟环境会在内部记录创建它时使用的 Python 基础路径，换一台电脑后这个路径就失效了。
+这通常说明仓库里混入了作者电脑上生成的旧 `.venv`。Windows 虚拟环境会在内部记录创建它时使用的基础 Python 路径，换一台电脑后这个路径就失效了。
 
-现在的启动脚本会优先检测并重建无效环境，不再依赖作者本机路径。
+现在的启动方式不会再直接依赖旧 `.venv`，而是会自动检测并重建无效环境。
 
 ### 2. 出现 `Existing .venv is missing pyvenv.cfg`
 
-这说明当前 `.venv` 已经损坏、不完整，或者只拷贝了部分目录。
+这说明当前 `.venv` 已损坏、不完整，或者只是被拷贝了部分目录。
 
-现在的启动脚本会：
+现在的 Python 启动器会：
 
 - 先尝试删除旧 `.venv`
-- 删除失败时自动回退到 `.venv_bootstrap`
+- 如果删除失败，再自动回退到 `.venv_bootstrap`
 - 尽量继续完成初始化，而不是直接卡死
 
-如果你自己本机仍然删不掉 `.venv`，通常是因为某个终端、编辑器、Python 进程还在占用它。关闭占用进程后再运行脚本即可。
+如果你自己本机仍然删不掉 `.venv`，通常是因为某个终端、编辑器或 Python 进程还在占用它。关闭占用进程后再运行即可。
 
 ### 3. 出现 `Could not find a version that satisfies the requirement fastapi==0.115.6`
 
-大多数情况下，这并不是 `fastapi==0.115.6` 不存在，而是 pip 没能正常访问 PyPI。
+大多数情况下，这并不意味着 `fastapi==0.115.6` 不存在，而是 pip 没能正常访问 PyPI。
 
 常见原因：
 
@@ -154,11 +164,18 @@ npm run dev
 - `HTTP_PROXY` / `HTTPS_PROXY` 指向了不可用代理
 - `PIP_INDEX_URL` 指向了不可访问的镜像
 
-现在的后端脚本已经会：
+启动器现在会：
 
 - 先用默认源安装
 - 失败后自动重试清华镜像
-- 如检测到代理变量，再额外尝试一次无代理重试
+- 输出更明确的提示，说明这通常是网络或代理问题
+
+手动重试示例：
+
+```bash
+cd backend
+.venv\Scripts\python.exe -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
+```
 
 ## 首次运行说明
 
@@ -171,6 +188,7 @@ npm run dev
 ## 程序入口
 
 - 后端入口：[backend/app/main.py](D:/计设/lightInspector/backend/app/main.py)
+- 后端启动器：[backend/scripts/bootstrap_backend.py](D:/计设/lightInspector/backend/scripts/bootstrap_backend.py)
 - 前端入口：[frontend/src/main.js](D:/计设/lightInspector/frontend/src/main.js)
 - 登录页：[frontend/src/views/Login.vue](D:/计设/lightInspector/frontend/src/views/Login.vue)
 - 地图组件：[frontend/src/components/LeafletMap.vue](D:/计设/lightInspector/frontend/src/components/LeafletMap.vue)

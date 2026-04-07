@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
@@ -12,6 +14,7 @@ from app.database.session import get_db
 from app.models import User
 
 
+logger = logging.getLogger(__name__)
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
@@ -33,19 +36,31 @@ class AuthService:
         db.commit()
         db.refresh(user)
 
+        logger.info("Auth register success username=%s user_id=%s", normalized_username, user.id)
         return self.serialize_user(user)
 
     def login(self, db: Session, username: str, password: str) -> dict:
         normalized_username = username.strip()
-        user = db.query(User).filter(User.username == normalized_username).first()
+        logger.info("Auth login request received username=%s", normalized_username)
 
-        if not user or not verify_password(password, user.password_hash):
+        user = db.query(User).filter(User.username == normalized_username).first()
+        if not user:
+            logger.warning("Auth login failed: user not found username=%s", normalized_username)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="用户名或密码错误",
+            )
+
+        password_ok = verify_password(password, user.password_hash)
+        if not password_ok:
+            logger.warning("Auth login failed: password mismatch username=%s", normalized_username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="用户名或密码错误",
             )
 
         access_token = create_access_token(str(user.id))
+        logger.info("Auth login success username=%s user_id=%s", normalized_username, user.id)
         return {
             "access_token": access_token,
             "token_type": "Bearer",
