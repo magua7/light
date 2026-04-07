@@ -30,42 +30,44 @@ const distributionTotal = computed(() =>
 const trendOption = computed(() => ({
   tooltip: {
     trigger: 'axis',
-    backgroundColor: 'rgba(12, 13, 16, 0.96)',
-    borderColor: 'rgba(255,255,255,0.08)',
-    textStyle: { color: '#f1ede6' }
+    backgroundColor: '#242b34',
+    borderColor: '#313945',
+    textStyle: { color: '#f5f7fa' }
   },
   legend: {
-    top: 0,
+    top: 4,
+    itemGap: 16,
     textStyle: {
-      color: '#bbb3a8'
+      color: '#d6dde6'
     }
   },
   grid: {
-    left: 24,
-    right: 16,
-    top: 48,
-    bottom: 24,
+    left: 28,
+    right: 20,
+    top: 52,
+    bottom: 28,
     containLabel: true
   },
   xAxis: {
     type: 'category',
     data: trendList.value.map((item) => item.date),
-    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } },
-    axisLabel: { color: '#8f8a81' }
+    axisLine: { lineStyle: { color: '#47515f' } },
+    axisTick: { show: false },
+    axisLabel: { color: '#c5cdd7' }
   },
   yAxis: [
     {
       type: 'value',
       name: '任务数',
-      nameTextStyle: { color: '#7e7971' },
-      axisLabel: { color: '#8f8a81' },
-      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } }
+      nameTextStyle: { color: '#aab3bf' },
+      axisLabel: { color: '#c5cdd7' },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }
     },
     {
       type: 'value',
       name: '平均分',
-      nameTextStyle: { color: '#7e7971' },
-      axisLabel: { color: '#8f8a81' },
+      nameTextStyle: { color: '#aab3bf' },
+      axisLabel: { color: '#c5cdd7' },
       splitLine: { show: false }
     }
   ],
@@ -76,9 +78,9 @@ const trendOption = computed(() => ({
       smooth: true,
       symbolSize: 8,
       data: trendList.value.map((item) => item.count),
-      lineStyle: { color: chartPalette.bright, width: 2 },
-      itemStyle: { color: chartPalette.bright },
-      areaStyle: { color: 'rgba(241, 237, 230, 0.08)' }
+      lineStyle: { color: chartPalette.light, width: 2.5 },
+      itemStyle: { color: chartPalette.light },
+      areaStyle: { color: 'rgba(214, 221, 230, 0.1)' }
     },
     {
       name: '平均评分',
@@ -94,17 +96,18 @@ const trendOption = computed(() => ({
 const typeOption = computed(() => ({
   tooltip: {
     trigger: 'item',
-    backgroundColor: 'rgba(12, 13, 16, 0.96)',
-    borderColor: 'rgba(255,255,255,0.08)',
-    textStyle: { color: '#f1ede6' }
+    backgroundColor: '#242b34',
+    borderColor: '#313945',
+    textStyle: { color: '#f5f7fa' }
   },
   legend: {
     bottom: 0,
-    textStyle: { color: '#bbb3a8' }
+    icon: 'circle',
+    textStyle: { color: '#d6dde6' }
   },
   color: [
-    chartPalette.bright,
     chartPalette.light,
+    chartPalette.mid,
     chartPalette.warning,
     chartPalette.danger
   ],
@@ -115,11 +118,11 @@ const typeOption = computed(() => ({
       radius: ['48%', '72%'],
       center: ['50%', '42%'],
       label: {
-        color: '#d2ccc1',
+        color: '#dfe4eb',
         formatter: '{b}: {d}%'
       },
       labelLine: {
-        lineStyle: { color: 'rgba(255,255,255,0.18)' }
+        lineStyle: { color: '#576271' }
       },
       data: typeDistribution.value.map((item) => ({
         name: formatType(item.name),
@@ -147,6 +150,10 @@ async function loadDashboard() {
   }
 }
 
+function goCreate() {
+  router.push('/tasks/create')
+}
+
 function goDetail(id) {
   router.push(`/tasks/${id}`)
 }
@@ -160,12 +167,12 @@ onMounted(loadDashboard)
       <div>
         <div class="page-title">首页大屏</div>
         <div class="page-desc">
-          用更克制的方式呈现任务总量、最近趋势、污染结构与点位分布，
-          便于在答辩现场快速讲清系统能力与监测结果。
+          集中展示检测规模、近期趋势、风险等级、地图点位和最近任务，
+          适合在比赛答辩时快速讲清系统概览与当前样本情况。
         </div>
       </div>
       <div class="page-actions">
-        <el-button type="primary" @click="$router.push('/tasks/create')">发起新检测</el-button>
+        <el-button type="primary" @click="goCreate">发起新检测</el-button>
       </div>
     </div>
 
@@ -174,30 +181,30 @@ onMounted(loadDashboard)
         title="检测任务总数"
         :value="overview.total_tasks"
         description="系统累计归档的夜间光环境检测任务"
-        accent="#f1ede6"
+        accent="#ece7df"
       />
       <StatCard
         title="今日检测数"
         :value="overview.today_tasks"
-        description="今日新完成的检测与分析任务"
-        accent="#d2ccc1"
+        description="今日新完成的检测与综合分析任务"
+        accent="#d6dde6"
       />
       <StatCard
         title="高风险预警数"
         :value="overview.high_risk_warnings"
-        description="进入重点复核清单的高风险任务"
-        accent="#a86558"
+        description="建议优先复核的高风险样本任务"
+        accent="#bb735c"
       />
       <StatCard
         title="平均评分"
         :value="overview.average_score"
         description="当前样本任务的综合平均评分"
-        accent="#b59572"
+        accent="#c29b63"
       />
     </div>
 
     <div class="two-col-grid">
-      <PanelCard title="最近 7 天检测趋势" subtitle="结合每日任务数与平均评分，观察样本变化趋势。">
+      <PanelCard title="最近 7 天检测趋势" subtitle="结合每日任务数与平均评分，观察近期样本变化。">
         <EChartPanel :option="trendOption" />
       </PanelCard>
 
@@ -215,7 +222,7 @@ onMounted(loadDashboard)
             </div>
             <el-progress
               :percentage="distributionTotal ? Number(((item.value / distributionTotal) * 100).toFixed(2)) : 0"
-              :color="levelColorMap[item.name] || '#d2ccc1'"
+              :color="levelColorMap[item.name] || '#d6dde6'"
               :show-text="false"
             />
             <div class="distribution-row__count">{{ item.value }} 条</div>
@@ -223,29 +230,41 @@ onMounted(loadDashboard)
         </div>
       </PanelCard>
 
-      <PanelCard title="地图点位分布" subtitle="以湖南长沙区域为示例展示监测点空间分布。">
-        <LeafletMap :points="mapPoints" />
+      <PanelCard title="地图点位分布" subtitle="默认展示湖南长沙范围内的监测点位。">
+        <LeafletMap :points="mapPoints" height="360px" />
       </PanelCard>
     </div>
 
-    <PanelCard title="最近任务列表" subtitle="用于演示从首页快速跳转至检测报告。">
-      <el-table :data="overview.recent_tasks" stripe>
-        <el-table-column prop="task_no" label="任务编号" min-width="170" />
-        <el-table-column prop="location_name" label="地点名称" min-width="160" />
-        <el-table-column label="评级" width="100">
+    <PanelCard title="最近任务列表" subtitle="从首页即可快速跳转到任务报告，适合投屏演示。">
+      <template #extra>
+        <span class="panel-note">最近 {{ overview.recent_tasks.length }} 条</span>
+      </template>
+
+      <el-table :data="overview.recent_tasks">
+        <el-table-column prop="task_no" label="任务编号" min-width="170">
+          <template #default="{ row }">
+            <span class="task-no">{{ row.task_no }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="location_name" label="地点名称" min-width="170" />
+        <el-table-column label="评级" width="110">
           <template #default="{ row }">
             <el-tag :type="levelTagMap[row.level] || 'info'">{{ row.level || '-' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="total_score" label="评分" width="100" />
+        <el-table-column label="评分" width="110">
+          <template #default="{ row }">
+            <span class="score-text">{{ row.total_score ?? '-' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="创建时间" min-width="180">
           <template #default="{ row }">
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="goDetail(row.id)">查看报告</el-button>
+            <el-button class="table-action-btn" @click="goDetail(row.id)">查看报告</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -267,8 +286,19 @@ onMounted(loadDashboard)
 }
 
 .distribution-row__count {
-  color: var(--text-muted);
+  color: var(--text-sub);
   text-align: right;
   font-size: 13px;
+}
+
+.task-no {
+  color: var(--text-main);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.score-text {
+  color: var(--text-main);
+  font-weight: 600;
 }
 </style>

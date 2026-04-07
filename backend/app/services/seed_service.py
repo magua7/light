@@ -207,9 +207,9 @@ class SeedService:
 <text x="36" y="72" font-size="28" fill="#f1ede6">城市光污染监测示例图</text>
 <text x="36" y="128" font-size="22" fill="#d2ccc1">地点：{label}</text>
 <text x="36" y="168" font-size="22" fill="#d2ccc1">{image_label}</text>
-<text x="36" y="214" font-size="18" fill="#8f8a81">Mock Sample Image For Demo</text>
+<text x="36" y="214" font-size="18" fill="#8f8a81">演示样本图，仅用于系统展示</text>
 <rect x="36" y="254" width="204" height="54" rx="12" fill="#f1ede6" opacity="0.14" />
-<text x="70" y="288" font-size="23" fill="#f1ede6">Light Pollution Demo</text>
+<text x="70" y="288" font-size="22" fill="#f1ede6">城市夜间光环境监测</text>
 </svg>
 """
         file_path.write_text(svg_content, encoding="utf-8")

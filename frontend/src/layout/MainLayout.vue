@@ -52,7 +52,7 @@ async function handleLogout() {
         </div>
       </div>
 
-      <div class="aside-caption">夜间光环境监测与智能评级平台</div>
+      <div class="aside-caption">面向夜间光环境检测的可视化展示平台</div>
 
       <el-menu :default-active="activeMenu" router class="app-menu">
         <el-menu-item index="/dashboard">
@@ -78,7 +78,7 @@ async function handleLogout() {
       </el-menu>
 
       <div class="aside-footer">
-        <div class="aside-footer__label">监测区域</div>
+        <div class="aside-footer__label">示例区域</div>
         <div class="aside-footer__value">湖南 · 长沙夜间光环境</div>
       </div>
     </el-aside>
@@ -90,8 +90,11 @@ async function handleLogout() {
           <div class="header-title">{{ headerTitle }}</div>
         </div>
         <div class="header-actions">
-          <span class="header-user">{{ loginUser }}</span>
-          <el-button text class="header-logout" @click="handleLogout">
+          <div class="header-userbox">
+            <div class="header-userlabel">当前账号</div>
+            <div class="header-user">{{ loginUser }}</div>
+          </div>
+          <el-button class="header-logout" @click="handleLogout">
             <el-icon><SwitchButton /></el-icon>
             退出登录
           </el-button>

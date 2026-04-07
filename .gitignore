@@ -1,0 +1,31 @@
+# Python virtual environments and caches
+backend/.venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node dependencies and build caches
+frontend/node_modules/
+node_modules/
+dist/
+.vite/
+
+# Local runtime data
+backend/uploads/
+backend/*.db
+*.db
+*.sqlite3
+*.log
+
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Misc cache folders
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage/

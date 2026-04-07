@@ -78,15 +78,15 @@ onMounted(loadTasks)
       <div>
         <div class="page-title">历史记录</div>
         <div class="page-desc">
-          用于回溯已完成的检测任务。支持按地点、评级和时间范围筛选，
-          便于在演示时快速找到代表性样本并进入报告页。
+          回看已完成的检测任务，支持按地点、评级和时间范围筛选，
+          便于在演示时快速定位代表性样本并进入报告页。
         </div>
       </div>
     </div>
 
-    <PanelCard title="筛选条件" subtitle="按关键词、评级和时间段过滤历史样本。">
+    <PanelCard title="筛选条件" subtitle="输入关键词、选择评级和时间范围后即可筛选历史样本。">
       <div class="filter-grid">
-        <el-input v-model="filters.keyword" placeholder="请输入地点名称或任务编号关键字" clearable />
+        <el-input v-model="filters.keyword" placeholder="请输入地点名称或任务编号关键词" clearable />
 
         <el-select v-model="filters.level" placeholder="请选择评级" clearable>
           <el-option label="优" value="优" />
@@ -106,15 +106,23 @@ onMounted(loadTasks)
         />
 
         <div class="action-group">
-          <el-button type="primary" @click="handleSearch">筛选</el-button>
+          <el-button type="primary" @click="handleSearch">查询</el-button>
           <el-button @click="handleReset">重置</el-button>
         </div>
       </div>
     </PanelCard>
 
-    <PanelCard title="任务列表" subtitle="点击任一记录可查看对应的检测报告。">
-      <el-table :data="tableData" stripe v-loading="loading">
-        <el-table-column prop="task_no" label="任务编号" min-width="180" />
+    <PanelCard title="任务列表" subtitle="保留经纬度、等级、蓝光风险等核心信息，适合投屏查看。">
+      <template #extra>
+        <span class="panel-note">共 {{ total }} 条</span>
+      </template>
+
+      <el-table :data="tableData" v-loading="loading">
+        <el-table-column prop="task_no" label="任务编号" min-width="180">
+          <template #default="{ row }">
+            <span class="task-no">{{ row.task_no }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="location_name" label="地点名称" min-width="170" />
         <el-table-column label="经纬度" min-width="190">
           <template #default="{ row }">
@@ -123,7 +131,7 @@ onMounted(loadTasks)
         </el-table-column>
         <el-table-column label="评分" width="100">
           <template #default="{ row }">
-            {{ row.total_score ?? '-' }}
+            <span class="score-text">{{ row.total_score ?? '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="评级" width="100">
@@ -141,9 +149,9 @@ onMounted(loadTasks)
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="goDetail(row.id)">查看报告</el-button>
+            <el-button class="table-action-btn" @click="goDetail(row.id)">查看报告</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -171,10 +179,11 @@ onMounted(loadTasks)
   gap: 16px;
 }
 
+.task-no,
+.score-text,
 .coordinate-text {
   color: var(--text-main);
   font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
 .table-pagination {

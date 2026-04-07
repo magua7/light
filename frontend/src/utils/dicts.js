@@ -28,21 +28,21 @@ export const levelTagMap = {
 }
 
 export const levelColorMap = {
-  优: '#8e9b8a',
-  良: '#a7abae',
-  中: '#b99e72',
-  较差: '#a56c5f',
-  差: '#7d4d46'
+  优: '#6d9776',
+  良: '#8f9cac',
+  中: '#c29b63',
+  较差: '#bb735c',
+  差: '#944d44'
 }
 
 export const chartPalette = {
-  bright: '#f1ede6',
-  light: '#d2ccc1',
-  mid: '#8f8a81',
-  muted: '#5c5a55',
-  warning: '#b59572',
-  danger: '#a86558',
-  success: '#86937f'
+  bright: '#f5f7fa',
+  light: '#d6dde6',
+  mid: '#8f9cac',
+  muted: '#707b88',
+  warning: '#c29b63',
+  danger: '#bb735c',
+  success: '#6d9776'
 }
 
 export function formatDirection(value) {
