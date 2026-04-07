@@ -3,7 +3,33 @@ import L from 'leaflet'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const DEFAULT_CENTER = [28.2282, 112.9388]
-const CHINESE_TILE_URL = 'https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/tile/{z}/{y}/{x}'
+const TILE_PROVIDERS = [
+  {
+    name: '高德中文地图',
+    url: 'https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}',
+    options: {
+      maxZoom: 18,
+      subdomains: ['1', '2', '3', '4']
+    }
+  },
+  {
+    name: '高德中文备用',
+    url: 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+    options: {
+      maxZoom: 18,
+      subdomains: ['1', '2', '3', '4']
+    }
+  },
+  {
+    name: 'OpenStreetMap',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      maxZoom: 19,
+      subdomains: ['a', 'b', 'c']
+    }
+  }
+]
+const TILE_ERROR_THRESHOLD = 8
 
 const props = defineProps({
   points: {
@@ -19,6 +45,60 @@ const props = defineProps({
 const mapRef = ref(null)
 let mapInstance = null
 let markerLayer = null
+let baseLayer = null
+let activeProviderIndex = 0
+let tileErrorCount = 0
+let resizeObserver = null
+let resizeTimer = null
+
+function handleWindowResize() {
+  scheduleInvalidateSize(80)
+}
+
+function cleanupBaseLayer() {
+  if (!baseLayer) return
+  baseLayer.off('tileerror', handleTileError)
+  baseLayer.off('load', handleTileLoad)
+  baseLayer.remove()
+  baseLayer = null
+}
+
+function handleTileError() {
+  tileErrorCount += 1
+  if (tileErrorCount < TILE_ERROR_THRESHOLD || activeProviderIndex >= TILE_PROVIDERS.length - 1) {
+    return
+  }
+  setBaseLayer(activeProviderIndex + 1)
+}
+
+function handleTileLoad() {
+  scheduleInvalidateSize(60)
+}
+
+function setBaseLayer(index = 0) {
+  if (!mapInstance) return
+  cleanupBaseLayer()
+
+  activeProviderIndex = index
+  tileErrorCount = 0
+  const provider = TILE_PROVIDERS[index]
+
+  baseLayer = L.tileLayer(provider.url, {
+    ...provider.options,
+    attribution: `&copy; ${provider.name}`
+  })
+  baseLayer.on('tileerror', handleTileError)
+  baseLayer.on('load', handleTileLoad)
+  baseLayer.addTo(mapInstance)
+}
+
+function scheduleInvalidateSize(delay = 120) {
+  if (!mapInstance) return
+  window.clearTimeout(resizeTimer)
+  resizeTimer = window.setTimeout(() => {
+    mapInstance?.invalidateSize({ pan: false, animate: false })
+  }, delay)
+}
 
 function buildPopup(point) {
   return `
@@ -76,13 +156,19 @@ onMounted(async () => {
   L.control.zoom({ position: 'bottomright' }).addTo(mapInstance)
   mapInstance.attributionControl.setPrefix(false)
 
-  L.tileLayer(CHINESE_TILE_URL, {
-    maxZoom: 18,
-    attribution: '&copy; GeoQ 中文地图'
-  }).addTo(mapInstance)
-
+  setBaseLayer(0)
   markerLayer = L.layerGroup().addTo(mapInstance)
   renderPoints()
+  scheduleInvalidateSize(180)
+
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => {
+      scheduleInvalidateSize(80)
+    })
+    resizeObserver.observe(mapRef.value)
+  }
+
+  window.addEventListener('resize', handleWindowResize)
 })
 
 watch(
@@ -90,11 +176,24 @@ watch(
   async () => {
     await nextTick()
     renderPoints()
+    scheduleInvalidateSize(120)
   },
   { deep: true }
 )
 
+watch(
+  () => props.height,
+  async () => {
+    await nextTick()
+    scheduleInvalidateSize(120)
+  }
+)
+
 onBeforeUnmount(() => {
+  window.clearTimeout(resizeTimer)
+  window.removeEventListener('resize', handleWindowResize)
+  resizeObserver?.disconnect()
+  cleanupBaseLayer()
   mapInstance?.remove()
 })
 </script>

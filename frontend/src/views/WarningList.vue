@@ -100,7 +100,7 @@ onMounted(loadWarnings)
             <el-tag :type="row.process_status === '已处理' ? 'success' : 'info'">{{ row.process_status }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="240" fixed="right">
+        <el-table-column label="操作" width="276">
           <template #default="{ row }">
             <div class="warning-actions">
               <el-button class="table-action-btn" @click="goDetail(row.task_id)">查看报告</el-button>
@@ -117,9 +117,33 @@ onMounted(loadWarnings)
 
 <style scoped>
 .warning-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.warning-actions :deep(.el-button) {
+  min-width: 96px;
+  padding-left: 14px;
+  padding-right: 14px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.warning-actions :deep(.table-secondary-btn.el-button) {
+  min-width: 118px;
+}
+
+.warning-actions :deep(.el-button > span) {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .task-no {

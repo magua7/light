@@ -689,7 +689,35 @@ a {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+.el-table__fixed,
+.el-table__fixed-right,
+.el-table__fixed-right-patch {
+  background: var(--bg-table-row) !important;
+}
+
+.el-table__fixed::before,
+.el-table__fixed-right::before {
+  background-color: var(--line-soft) !important;
+}
+
+.el-table__fixed th.el-table__cell,
+.el-table__fixed-right th.el-table__cell {
+  background: var(--bg-table-head) !important;
+}
+
+.el-table__fixed td.el-table__cell,
+.el-table__fixed-right td.el-table__cell,
+.el-table__fixed-body-wrapper td.el-table__cell,
+.el-table__fixed-right .el-table__fixed-body-wrapper td.el-table__cell {
+  background: var(--bg-table-row) !important;
+}
+
 .el-table__body tr:hover > td.el-table__cell {
+  background: var(--bg-table-hover) !important;
+}
+
+.el-table__fixed-body-wrapper tr:hover > td.el-table__cell,
+.el-table__fixed-right .el-table__fixed-body-wrapper tr:hover > td.el-table__cell {
   background: var(--bg-table-hover) !important;
 }
 

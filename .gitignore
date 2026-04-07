@@ -5,19 +5,29 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.python-version
 
 # Node dependencies and build caches
 frontend/node_modules/
 node_modules/
+frontend/dist/
 dist/
+frontend/.vite/
 .vite/
 
 # Local runtime data
 backend/uploads/
+backend/light_inspector.db
 backend/*.db
 *.db
 *.sqlite3
 *.log
+
+# Keep dependency manifests and startup docs tracked
+!backend/requirements.txt
+!frontend/package.json
+!frontend/package-lock.json
+!README.md
 
 # IDE and OS files
 .DS_Store
