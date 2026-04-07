@@ -85,6 +85,10 @@ lightInspector/
 - 如 `.venv` 不存在，会自动创建
 - 如 `.venv` 已存在但来自别的机器或已损坏，会自动删除并重建
 - 然后自动安装 `requirements.txt` 中的依赖并启动 FastAPI
+- 前端脚本会自动检测 `node` 和 `npm`
+- 如 `node_modules` 不存在或不完整，会自动执行 `npm install`
+
+如果你是从旧版本仓库升级过来的，并且以前仓库里已经混入过 `.venv`，也可以手动删除一次 `backend/.venv/` 后再运行脚本。
 
 ### 方式二：手动启动
 
@@ -179,6 +183,7 @@ analyze_images(east_image, south_image, west_image, north_image)
 - 前端依赖可通过 `npm install` 重新安装
 - 后端依赖可通过 `pip install -r requirements.txt` 重新安装
 - 数据库和上传目录会在本地运行时自动生成
+- 启动脚本不会依赖任何作者本机的绝对路径
 
 如果这些目录之前已经被提交到 Git，需要再执行一次从版本控制中移除：
 
