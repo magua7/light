@@ -60,11 +60,47 @@ body,
 }
 
 body {
+  position: relative;
   font-family: var(--font-main);
   color: var(--text-main);
   background:
-    radial-gradient(circle at top left, rgba(196, 157, 103, 0.08), transparent 18%),
-    linear-gradient(180deg, #14181d 0%, #101317 100%);
+    radial-gradient(circle at 18% 18%, rgba(196, 157, 103, 0.08), transparent 22%),
+    radial-gradient(circle at 82% 22%, rgba(143, 156, 172, 0.08), transparent 18%),
+    linear-gradient(180deg, #0a1017 0%, #0d1118 42%, #0b1016 100%);
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+body::before {
+  z-index: -2;
+  opacity: 0.55;
+  background:
+    radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 28% 76%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 44% 16%, rgba(255, 255, 255, 0.12) 0 1.2px, transparent 1.7px),
+    radial-gradient(circle at 62% 34%, rgba(255, 255, 255, 0.12) 0 1.2px, transparent 1.6px),
+    radial-gradient(circle at 78% 68%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 88% 24%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 16% 88%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px);
+  background-size: 100% 100%;
+}
+
+body::after {
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(7, 11, 17, 0.42) 0%, rgba(7, 11, 17, 0.56) 100%);
+}
+
+#app {
+  position: relative;
+  isolation: isolate;
 }
 
 a {
@@ -77,18 +113,20 @@ a {
 
 .app-shell {
   min-height: 100vh;
-  background: var(--bg-main);
+  background: transparent;
 }
 
 .app-stage {
-  background: var(--bg-stage);
+  background: rgba(10, 14, 20, 0.42);
+  backdrop-filter: blur(4px);
 }
 
 .app-aside {
   position: relative;
-  background: var(--bg-sidebar);
+  background: rgba(9, 13, 18, 0.78);
   color: var(--text-main);
   border-right: 1px solid var(--line-soft);
+  backdrop-filter: blur(10px);
 }
 
 .brand-wrap {
@@ -108,8 +146,7 @@ a {
   background: rgba(236, 231, 223, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--accent-main);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 19px;
 }
 
 .brand-title {
@@ -122,16 +159,7 @@ a {
   margin-top: 4px;
   font-size: 12px;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
-}
-
-.aside-caption {
-  margin: 0 22px 18px;
-  padding-bottom: 18px;
-  color: var(--text-sub);
-  font-size: 13px;
-  line-height: 1.7;
-  border-bottom: 1px solid var(--line-soft);
+  letter-spacing: 0.08em;
 }
 
 .app-menu.el-menu {
@@ -198,8 +226,9 @@ a {
   justify-content: space-between;
   min-height: 88px;
   padding: 18px 28px;
-  background: var(--bg-header);
+  background: rgba(12, 17, 24, 0.72);
   border-bottom: 1px solid var(--line-soft);
+  backdrop-filter: blur(12px);
 }
 
 .header-content {
@@ -207,9 +236,12 @@ a {
 }
 
 .header-kicker {
-  color: var(--text-muted);
-  font-size: 13px;
-  letter-spacing: 0.03em;
+  max-width: 860px;
+  color: #f2f5f8;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 .header-title {
@@ -262,6 +294,7 @@ a {
 
 .app-main {
   padding: 28px;
+  background: transparent;
 }
 
 .page-view {

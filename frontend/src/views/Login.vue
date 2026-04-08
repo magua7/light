@@ -1,11 +1,12 @@
 <script setup>
-import { Lock, MoonNight, User } from '@element-plus/icons-vue'
+import { Lock, StarFilled, User } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { checkBackendHealth, loginAccount, registerAccount } from '../api/auth'
 import { persistAuth } from '../utils/auth'
+import { BRAND_FULL_NAME, BRAND_SLOGAN } from '../utils/dicts'
 
 const route = useRoute()
 const router = useRouter()
@@ -45,9 +46,11 @@ async function handleLogin() {
   try {
     const backendReady = await ensureBackendAvailable()
     if (!backendReady) return
+
     if (import.meta.env.DEV) {
       console.info('[auth] POST /api/auth/login')
     }
+
     const data = await loginAccount({
       username: loginForm.username.trim(),
       password: loginForm.password
@@ -84,9 +87,11 @@ async function handleRegister() {
   try {
     const backendReady = await ensureBackendAvailable()
     if (!backendReady) return
+
     if (import.meta.env.DEV) {
       console.info('[auth] POST /api/auth/register')
     }
+
     await registerAccount({
       username: registerForm.username.trim(),
       password: registerForm.password
@@ -116,10 +121,10 @@ async function handleRegister() {
     <div class="login-shell">
       <section class="login-hero">
         <div class="login-badge">
-          <el-icon><MoonNight /></el-icon>
+          <el-icon><StarFilled /></el-icon>
         </div>
-        <h1 class="login-title">LightInspector 城市光环境监测系统</h1>
-        <p class="login-subtitle">城市夜间光环境监测与评级平台</p>
+        <h1 class="login-title">{{ BRAND_FULL_NAME }}</h1>
+        <p class="login-subtitle">{{ BRAND_SLOGAN }}</p>
       </section>
 
       <section class="login-panel">
@@ -128,7 +133,7 @@ async function handleRegister() {
             <el-form
               :model="loginForm"
               label-position="left"
-              label-width="74px"
+              label-width="76px"
               class="auth-form"
               @submit.prevent="handleLogin"
             >
@@ -169,7 +174,7 @@ async function handleRegister() {
             <el-form
               :model="registerForm"
               label-position="left"
-              label-width="74px"
+              label-width="76px"
               class="auth-form"
               @submit.prevent="handleRegister"
             >
@@ -239,77 +244,81 @@ async function handleRegister() {
 .login-page__glow {
   position: absolute;
   border-radius: 999px;
-  filter: blur(60px);
-  opacity: 0.35;
+  filter: blur(72px);
+  opacity: 0.32;
 }
 
 .login-page__glow--left {
-  width: 420px;
-  height: 420px;
+  width: 440px;
+  height: 440px;
   left: -120px;
   top: 80px;
-  background: rgba(245, 239, 226, 0.08);
+  background: rgba(226, 232, 244, 0.08);
 }
 
 .login-page__glow--right {
   width: 360px;
   height: 360px;
   right: -80px;
-  bottom: 60px;
-  background: rgba(168, 101, 88, 0.12);
+  bottom: 40px;
+  background: rgba(196, 157, 103, 0.12);
 }
 
 .login-shell {
   position: relative;
   z-index: 1;
-  width: min(1080px, 100%);
+  width: min(1120px, 100%);
   display: grid;
-  grid-template-columns: 1fr 420px;
+  grid-template-columns: 1.15fr 420px;
   gap: 24px;
 }
 
 .login-hero,
 .login-panel {
   padding: 40px;
-  border-radius: 28px;
-  background: rgba(17, 19, 21, 0.9);
+  border-radius: 30px;
+  background: rgba(12, 16, 22, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 32px 72px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px);
 }
 
 .login-hero {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 440px;
+  min-height: 520px;
 }
 
 .login-badge {
-  width: 58px;
-  height: 58px;
+  width: 62px;
+  height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 18px;
-  background: rgba(241, 237, 230, 0.1);
+  border-radius: 20px;
+  background: rgba(241, 237, 230, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #f1ede6;
   font-size: 24px;
 }
 
 .login-title {
-  margin: 24px 0 12px;
-  font-size: 36px;
-  line-height: 1.2;
+  margin: 26px 0 14px;
+  max-width: 12em;
   color: var(--text-main);
+  font-size: clamp(2.2rem, 3vw, 3.5rem);
+  line-height: 1.22;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
 }
 
 .login-subtitle {
   margin: 0;
+  max-width: 22em;
   color: var(--text-sub);
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 16px;
+  line-height: 1.9;
 }
 
 .login-panel {
@@ -317,7 +326,7 @@ async function handleRegister() {
 }
 
 .auth-form {
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .auth-form__item {
@@ -393,11 +402,11 @@ async function handleRegister() {
   }
 
   .login-hero {
-    min-height: 260px;
+    min-height: 280px;
   }
 
   .login-title {
-    font-size: 32px;
+    max-width: none;
   }
 }
 </style>

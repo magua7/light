@@ -3,6 +3,7 @@ import {
   DataAnalysis,
   Location,
   Opportunity,
+  StarFilled,
   SwitchButton,
   UploadFilled,
   Warning
@@ -13,6 +14,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { logoutAccount } from '../api/auth'
 import { clearAuth, getLoginUser } from '../utils/auth'
+import { BRAND_FULL_NAME, BRAND_NAV_NAME, BRAND_SHORT_NAME } from '../utils/dicts'
 
 const route = useRoute()
 const router = useRouter()
@@ -25,14 +27,13 @@ const activeMenu = computed(() => {
   return '/dashboard'
 })
 
-const headerTitle = computed(() => route.meta.title || '首页大屏')
 const loginUser = computed(() => getLoginUser() || '未命名用户')
 
 async function handleLogout() {
   try {
     await logoutAccount()
   } catch {
-    // 即使后端登出失败，也要保证本地登录态被清理。
+    // 即使后端登出失败，也要保证本地登录态被清理
   } finally {
     clearAuth()
     ElMessage.success('已退出登录')
@@ -43,16 +44,16 @@ async function handleLogout() {
 
 <template>
   <el-container class="app-shell">
-    <el-aside class="app-aside" width="248px">
+    <el-aside class="app-aside" width="252px">
       <div class="brand-wrap">
-        <div class="brand-badge">光</div>
+        <div class="brand-badge">
+          <el-icon><StarFilled /></el-icon>
+        </div>
         <div>
-          <div class="brand-title">城市光环境监测</div>
-          <div class="brand-subtitle">LightInspector</div>
+          <div class="brand-title">{{ BRAND_SHORT_NAME }}</div>
+          <div class="brand-subtitle">{{ BRAND_NAV_NAME }}</div>
         </div>
       </div>
-
-      <div class="aside-caption">面向夜间光环境检测的可视化展示平台</div>
 
       <el-menu :default-active="activeMenu" router class="app-menu">
         <el-menu-item index="/dashboard">
@@ -86,8 +87,7 @@ async function handleLogout() {
     <el-container class="app-stage">
       <el-header class="app-header">
         <div class="header-content">
-          <div class="header-kicker">城市光环境监测与智能评级系统</div>
-          <div class="header-title">{{ headerTitle }}</div>
+          <div class="header-kicker">{{ BRAND_FULL_NAME }}</div>
         </div>
         <div class="header-actions">
           <div class="header-userbox">

@@ -166,13 +166,10 @@ onMounted(loadDashboard)
     <div class="page-head">
       <div>
         <div class="page-title">首页大屏</div>
-        <div class="page-desc">
-          集中展示检测规模、近期趋势、风险等级、地图点位和最近任务，
-          适合在比赛答辩时快速讲清系统概览与当前样本情况。
-        </div>
+        <div class="page-desc">查看任务规模、近期趋势、光源结构与长沙样本点位。</div>
       </div>
       <div class="page-actions">
-        <el-button type="primary" @click="goCreate">发起新检测</el-button>
+        <el-button type="primary" @click="goCreate">新建检测任务</el-button>
       </div>
     </div>
 
@@ -204,17 +201,17 @@ onMounted(loadDashboard)
     </div>
 
     <div class="two-col-grid">
-      <PanelCard title="最近 7 天检测趋势" subtitle="结合每日任务数与平均评分，观察近期样本变化。">
+      <PanelCard title="最近 7 天检测趋势">
         <EChartPanel :option="trendOption" />
       </PanelCard>
 
-      <PanelCard title="光污染类型占比" subtitle="对近期任务中的主要光源类型进行结构化统计。">
+      <PanelCard title="污染类型占比">
         <EChartPanel :option="typeOption" />
       </PanelCard>
     </div>
 
     <div class="two-col-grid">
-      <PanelCard title="评级分布" subtitle="当前样本任务在五档评级中的分布情况。">
+      <PanelCard title="评级分布">
         <div class="distribution-list">
           <div v-for="item in overview.level_distribution" :key="item.name" class="distribution-row">
             <div class="distribution-row__tag">
@@ -230,12 +227,12 @@ onMounted(loadDashboard)
         </div>
       </PanelCard>
 
-      <PanelCard title="地图点位分布" subtitle="默认展示湖南长沙范围内的监测点位。">
+      <PanelCard title="地图点位分布">
         <LeafletMap :points="mapPoints" height="360px" />
       </PanelCard>
     </div>
 
-    <PanelCard title="最近任务列表" subtitle="从首页即可快速跳转到任务报告，适合投屏演示。">
+    <PanelCard title="最近任务列表">
       <template #extra>
         <span class="panel-note">最近 {{ overview.recent_tasks.length }} 条</span>
       </template>
@@ -262,7 +259,7 @@ onMounted(loadDashboard)
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="130">
           <template #default="{ row }">
             <el-button class="table-action-btn" @click="goDetail(row.id)">查看报告</el-button>
           </template>

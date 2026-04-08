@@ -1,3 +1,10 @@
+export const BRAND_FULL_NAME = '净光物联城市光污染多模态感知监测与智能评级系统'
+export const BRAND_SHORT_NAME = '净光物联'
+export const BRAND_NAV_NAME = '城市光污染监测'
+export const BRAND_SLOGAN = '少一分多余光亮，多一分星空浪漫'
+
+export const analysisDirections = ['east', 'south', 'west', 'north']
+
 export const directionMap = {
   east: '图片1',
   south: '图片2',
@@ -5,18 +12,16 @@ export const directionMap = {
   north: '图片4'
 }
 
-export const imageSlotOptions = [
-  { key: 'east', title: '图片1' },
-  { key: 'south', title: '图片2' },
-  { key: 'west', title: '图片3' },
-  { key: 'north', title: '图片4' }
-]
+export const imageSlotOptions = analysisDirections.map((key) => ({
+  key,
+  title: directionMap[key]
+}))
 
 export const typeMap = {
   ad_light: '广告光源',
   up_light: '上射光源',
   move_light: '动态光源',
-  stay_light: '常亮光源'
+  stay_light: '静态光源'
 }
 
 export const levelTagMap = {
@@ -45,6 +50,10 @@ export const chartPalette = {
   success: '#6d9776'
 }
 
+export function buildDocumentTitle(pageTitle = '') {
+  return pageTitle ? `${pageTitle} - ${BRAND_FULL_NAME}` : BRAND_FULL_NAME
+}
+
 export function formatDirection(value) {
   return directionMap[value] || value || '-'
 }
@@ -70,4 +79,14 @@ export function formatImageUrl(path) {
 export function formatCoordinate(longitude, latitude) {
   if (longitude == null || latitude == null) return '-'
   return `${Number(longitude).toFixed(3)}, ${Number(latitude).toFixed(3)}`
+}
+
+export function formatCoordinateDisplay(longitude, latitude) {
+  if (longitude == null || latitude == null) return '-'
+  const lon = Number(longitude)
+  const lat = Number(latitude)
+  if (!Number.isFinite(lon) || !Number.isFinite(lat)) return '-'
+  const lonSuffix = lon >= 0 ? 'E' : 'W'
+  const latSuffix = lat >= 0 ? 'N' : 'S'
+  return `经度 ${Math.abs(lon).toFixed(2)}${lonSuffix}，纬度 ${Math.abs(lat).toFixed(2)}${latSuffix}`
 }

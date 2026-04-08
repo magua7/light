@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import { fetchCurrentUser } from '../api/auth'
 import MainLayout from '../layout/MainLayout.vue'
 import { clearAuth, getCurrentUser, getToken, isLoggedIn, setCurrentUser } from '../utils/auth'
+import { buildDocumentTitle } from '../utils/dicts'
 import Dashboard from '../views/Dashboard.vue'
 import Login from '../views/Login.vue'
 import MapMonitor from '../views/MapMonitor.vue'
@@ -127,6 +128,11 @@ router.beforeEach(async (to) => {
   }
 
   return true
+})
+
+router.afterEach((to) => {
+  if (typeof document === 'undefined') return
+  document.title = buildDocumentTitle(to.meta?.title || '')
 })
 
 export default router
