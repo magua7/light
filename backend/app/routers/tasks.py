@@ -16,10 +16,11 @@ def create_task(
     latitude: float = Form(...),
     location_name: str | None = Form(default=None),
     remark: str | None = Form(default=None),
-    east_image: UploadFile = File(...),
-    south_image: UploadFile = File(...),
-    west_image: UploadFile = File(...),
-    north_image: UploadFile = File(...),
+    images: list[UploadFile] | None = File(default=None),
+    east_image: UploadFile | None = File(default=None),
+    south_image: UploadFile | None = File(default=None),
+    west_image: UploadFile | None = File(default=None),
+    north_image: UploadFile | None = File(default=None),
     db: Session = Depends(get_db),
 ):
     data = task_service.create_task(
@@ -28,6 +29,7 @@ def create_task(
         latitude=latitude,
         location_name=location_name,
         remark=remark,
+        images=images,
         east_image=east_image,
         south_image=south_image,
         west_image=west_image,

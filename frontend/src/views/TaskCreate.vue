@@ -6,7 +6,6 @@ import { useRouter } from 'vue-router'
 
 import { createTask } from '../api/tasks'
 import PanelCard from '../components/PanelCard.vue'
-import { analysisDirections, formatDirection } from '../utils/dicts'
 
 const router = useRouter()
 const loading = ref(false)
@@ -16,14 +15,14 @@ let uploadSeed = 0
 
 const form = reactive({
   location_name: '',
-  longitude: '112.9388',
-  latitude: '28.2282',
+  longitude: '',
+  latitude: '',
   remark: ''
 })
 
 const uploadFiles = ref([])
 
-const primaryFiles = computed(() => uploadFiles.value.slice(0, 4))
+const hasEnoughImages = computed(() => uploadFiles.value.length >= 4)
 
 function selectAllInput(event) {
   event?.target?.select?.()
@@ -89,8 +88,8 @@ async function submitTask() {
     return
   }
 
-  if (primaryFiles.value.length < 4) {
-    ElMessage.warning('请上传至少 4 张夜景样本图片，系统将默认取前 4 张生成报告')
+  if (!hasEnoughImages.value) {
+    ElMessage.warning('请最少上传四张夜景图片')
     return
   }
 
@@ -100,9 +99,8 @@ async function submitTask() {
   if (form.location_name.trim()) payload.append('location_name', form.location_name.trim())
   if (form.remark.trim()) payload.append('remark', form.remark.trim())
 
-  primaryFiles.value.forEach((item, index) => {
-    const direction = analysisDirections[index]
-    payload.append(`${direction}_image`, item.raw)
+  uploadFiles.value.forEach((item) => {
+    payload.append('images', item.raw)
   })
 
   loading.value = true
@@ -127,7 +125,7 @@ onBeforeUnmount(() => {
     <div class="page-head">
       <div>
         <div class="page-title">上传检测</div>
-        <div class="page-desc">上传夜景样本并补充点位信息，系统将默认取前 4 张生成报告。</div>
+        <div class="page-desc">上传夜景样本并补充点位信息，系统将基于全部样本生成检测报告。</div>
       </div>
       <div class="page-actions">
         <el-button type="primary" :loading="loading" @click="submitTask">提交并生成报告</el-button>
@@ -164,6 +162,7 @@ onBeforeUnmount(() => {
     </PanelCard>
 
     <PanelCard title="夜景样本上传">
+      <div class="upload-headline">请最少上传四张夜景图片</div>
       <div
         class="unified-upload"
         :class="{ 'is-drag-active': dragActive }"
@@ -183,14 +182,14 @@ onBeforeUnmount(() => {
           <el-icon><UploadFilled /></el-icon>
         </div>
         <div class="unified-upload__title">点击或拖拽上传夜景样本图片</div>
-        <div class="unified-upload__desc">支持 jpg / jpeg / png，可连续上传多张图片，当前报告默认分析前 4 张。</div>
+        <div class="unified-upload__desc">支持 jpg / jpeg / png，可连续上传多张图片，系统将基于全部上传样本完成分析。</div>
         <el-button class="unified-upload__button" @click="openFileDialog">选择图片</el-button>
       </div>
 
       <div v-if="uploadFiles.length" class="sample-list">
         <div class="sample-list__head">
           <div class="sample-list__title">已选样本</div>
-          <div class="sample-list__hint">当前已上传 {{ uploadFiles.length }} 张，其中前 4 张将用于本次报告分析。</div>
+          <div class="sample-list__hint">当前已上传 {{ uploadFiles.length }} 张，所有样本都会参与本次分析。</div>
         </div>
 
         <div class="sample-grid">
@@ -198,8 +197,8 @@ onBeforeUnmount(() => {
             <el-image :src="item.preview" fit="cover" class="sample-card__media" />
             <div class="sample-card__body">
               <div class="sample-card__title">
-                <span>{{ index < 4 ? formatDirection(analysisDirections[index]) : `附加样本${index - 3}` }}</span>
-                <el-tag v-if="index < 4" size="small" type="warning">主分析图</el-tag>
+                <span>{{ `图片${index + 1}` }}</span>
+                <el-tag v-if="index < 4" size="small" type="warning">核心样本</el-tag>
               </div>
               <div class="sample-card__name">{{ item.name }}</div>
             </div>
@@ -234,6 +233,12 @@ onBeforeUnmount(() => {
   margin: -8px 0 14px 96px;
   color: var(--text-muted);
   font-size: 12px;
+}
+
+.upload-headline {
+  margin-bottom: 14px;
+  color: var(--text-sub);
+  font-size: 14px;
 }
 
 .unified-upload {

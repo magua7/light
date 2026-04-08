@@ -287,7 +287,7 @@ async function handleRegister() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 520px;
+  min-height: 500px;
 }
 
 .login-badge {
@@ -305,12 +305,13 @@ async function handleRegister() {
 
 .login-title {
   margin: 26px 0 14px;
-  max-width: 12em;
+  max-width: 11.5em;
   color: var(--text-main);
-  font-size: clamp(2.2rem, 3vw, 3.5rem);
-  line-height: 1.22;
-  letter-spacing: 0.01em;
+  font-size: clamp(2rem, 2.1vw + 0.8rem, 3rem);
+  line-height: 1.28;
+  letter-spacing: 0;
   text-wrap: balance;
+  word-break: keep-all;
 }
 
 .login-subtitle {

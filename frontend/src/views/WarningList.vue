@@ -1,24 +1,15 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 import { fetchWarningList, updateWarningStatus } from '../api/warnings'
 import PanelCard from '../components/PanelCard.vue'
-import StatCard from '../components/StatCard.vue'
 import { formatDateTime, levelTagMap } from '../utils/dicts'
 
 const router = useRouter()
 const loading = ref(false)
 const warnings = ref([])
-
-const statistics = computed(() => {
-  const total = warnings.value.length
-  const processed = warnings.value.filter((item) => item.process_status === '已处理').length
-  const pending = total - processed
-  const critical = warnings.value.filter((item) => item.warning_level === '高风险').length
-  return { total, processed, pending, critical }
-})
 
 async function loadWarnings() {
   loading.value = true
@@ -48,59 +39,44 @@ onMounted(loadWarnings)
     <div class="page-head">
       <div>
         <div class="page-title">预警列表</div>
-        <div class="page-desc">
-          展示中高风险与高风险任务，并记录当前处理状态，
-          适合在答辩中说明系统的预警发现与跟进闭环。
-        </div>
+        <div class="page-desc">聚焦中高风险与高风险样本，展示当前预警台账。</div>
       </div>
     </div>
 
-    <div class="stats-grid">
-      <StatCard title="预警总数" :value="statistics.total" description="进入预警池的任务总量" accent="#ece7df" />
-      <StatCard title="高风险任务" :value="statistics.critical" description="建议优先安排复核的样本点位" accent="#bb735c" />
-      <StatCard title="待处理" :value="statistics.pending" description="尚未完成闭环跟进的预警任务" accent="#c29b63" />
-      <StatCard title="已处理" :value="statistics.processed" description="已完成人工复核或治理跟进" accent="#6d9776" />
-    </div>
-
-    <PanelCard title="预警台账" subtitle="支持切换处理状态，便于展示从发现到跟进的完整链路。">
+    <PanelCard title="预警台账">
       <template #extra>
-        <span class="panel-note">{{ statistics.total }} 条预警</span>
+        <span class="panel-note">{{ warnings.length }} 条预警</span>
       </template>
 
       <el-table :data="warnings">
-        <el-table-column prop="location_name" label="地点名称" min-width="160" />
-        <el-table-column prop="task_no" label="任务编号" min-width="170">
+        <el-table-column prop="location_name" label="地点名称" min-width="160" align="center" header-align="center" />
+        <el-table-column prop="task_no" label="任务编号" min-width="180" align="center" header-align="center">
           <template #default="{ row }">
             <span class="task-no">{{ row.task_no }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="时间" min-width="180">
+        <el-table-column label="时间" min-width="180" align="center" header-align="center">
           <template #default="{ row }">
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column prop="total_score" label="评分" width="100" />
-        <el-table-column label="等级" width="100">
+        <el-table-column prop="total_score" label="评分" width="100" align="center" header-align="center" />
+        <el-table-column label="等级" width="100" align="center" header-align="center">
           <template #default="{ row }">
             <el-tag :type="levelTagMap[row.level] || 'info'">{{ row.level }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="预警级别" width="110">
+        <el-table-column label="预警级别" width="120" align="center" header-align="center">
           <template #default="{ row }">
             <el-tag :type="row.warning_level === '高风险' ? 'danger' : 'warning'">{{ row.warning_level }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="蓝光风险" width="110">
+        <el-table-column label="蓝光风险" width="110" align="center" header-align="center">
           <template #default="{ row }">
             <el-tag :type="row.blue_risk ? 'danger' : 'success'">{{ row.blue_risk ? '是' : '否' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="处理状态" width="110">
-          <template #default="{ row }">
-            <el-tag :type="row.process_status === '已处理' ? 'success' : 'info'">{{ row.process_status }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="276">
+        <el-table-column label="操作" width="276" align="center" header-align="center">
           <template #default="{ row }">
             <div class="warning-actions">
               <el-button class="table-action-btn" @click="goDetail(row.task_id)">查看报告</el-button>

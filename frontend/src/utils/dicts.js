@@ -55,6 +55,12 @@ export function buildDocumentTitle(pageTitle = '') {
 }
 
 export function formatDirection(value) {
+  if (typeof value === 'string') {
+    const matched = value.match(/^image[_-]?(\d+)$/i)
+    if (matched) {
+      return `图片${matched[1]}`
+    }
+  }
   return directionMap[value] || value || '-'
 }
 
@@ -81,12 +87,15 @@ export function formatCoordinate(longitude, latitude) {
   return `${Number(longitude).toFixed(3)}, ${Number(latitude).toFixed(3)}`
 }
 
-export function formatCoordinateDisplay(longitude, latitude) {
+export function formatCoordinateDisplay(longitude, latitude, options = {}) {
   if (longitude == null || latitude == null) return '-'
   const lon = Number(longitude)
   const lat = Number(latitude)
   if (!Number.isFinite(lon) || !Number.isFinite(lat)) return '-'
   const lonSuffix = lon >= 0 ? 'E' : 'W'
   const latSuffix = lat >= 0 ? 'N' : 'S'
+  if (options.compact) {
+    return `${Math.abs(lon).toFixed(2)}${lonSuffix} / ${Math.abs(lat).toFixed(2)}${latSuffix}`
+  }
   return `经度 ${Math.abs(lon).toFixed(2)}${lonSuffix}，纬度 ${Math.abs(lat).toFixed(2)}${latSuffix}`
 }

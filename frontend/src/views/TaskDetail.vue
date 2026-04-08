@@ -74,6 +74,11 @@ const typeOption = computed(() => ({
 const summaryBullets = computed(() => {
   const bullets = []
   const totalTypes = typeEntries.value.reduce((sum, item) => sum + item.value, 0)
+  const imageCount = detail.value?.images?.length || 0
+
+  if (imageCount) {
+    bullets.push(`本次任务共纳入 ${imageCount} 张夜景样本图片参与综合分析。`)
+  }
 
   if (typeEntries.value.length) {
     const topType = typeEntries.value[0]

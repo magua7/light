@@ -6,7 +6,7 @@ import { fetchMapPoints } from '../api/dashboard'
 import LeafletMap from '../components/LeafletMap.vue'
 import PanelCard from '../components/PanelCard.vue'
 import StatCard from '../components/StatCard.vue'
-import { formatCoordinate, formatDateTime, levelColorMap, levelTagMap } from '../utils/dicts'
+import { formatCoordinateDisplay, formatDateTime, levelColorMap, levelTagMap } from '../utils/dicts'
 
 const router = useRouter()
 const loading = ref(false)
@@ -42,21 +42,18 @@ onMounted(loadMapPoints)
     <div class="page-head">
       <div>
         <div class="page-title">地图监测</div>
-        <div class="page-desc">
-          以湖南长沙范围内的演示样本点为例，展示监测结果在空间上的分布情况，
-          便于从地图视角说明系统如何管理多点位检测任务。
-        </div>
+        <div class="page-desc">从空间分布角度查看长沙样本点位与任务结果。</div>
       </div>
     </div>
 
     <div class="stats-grid">
-      <StatCard title="监测点总数" :value="summary.total" description="当前地图中已加载的样本点位" accent="#ece7df" />
-      <StatCard title="高风险点位" :value="summary.high" description="评级为较差或差的重点关注点位" accent="#bb735c" />
+      <StatCard title="监测点总数" :value="summary.total" description="当前地图已加载的样本点位" accent="#ece7df" />
+      <StatCard title="高风险点位" :value="summary.high" description="评级偏高的重点关注点位" accent="#bb735c" />
       <StatCard title="中等级点位" :value="summary.medium" description="评级处于中档的样本点位" accent="#c29b63" />
-      <StatCard title="展示区域" value="长沙" description="地图默认视野已切换至湖南长沙" accent="#d6dde6" />
+      <StatCard title="展示区域" value="长沙" description="地图默认视野位于湖南长沙" accent="#d6dde6" />
     </div>
 
-    <PanelCard title="监测点位地图" subtitle="底图已切换为中文标注，优先保证演示时的可读性。">
+    <PanelCard title="监测点位地图">
       <template #extra>
         <span class="panel-note">{{ mapPoints.length }} 个点位</span>
       </template>
@@ -70,36 +67,31 @@ onMounted(loadMapPoints)
       <LeafletMap :points="mapPoints" height="520px" />
     </PanelCard>
 
-    <PanelCard title="点位摘要列表" subtitle="保留表格视图，方便答辩时从地图切回列表讲解。">
+    <PanelCard title="点位摘要列表">
       <el-table :data="mapPoints">
-        <el-table-column prop="task_no" label="任务编号" min-width="170">
+        <el-table-column prop="task_no" label="任务编号" min-width="180" align="center" header-align="center">
           <template #default="{ row }">
             <span class="task-no">{{ row.task_no }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="location_name" label="地点名称" min-width="160" />
-        <el-table-column label="经纬度" min-width="190">
+        <el-table-column prop="location_name" label="地点名称" min-width="180" align="center" header-align="center" />
+        <el-table-column label="经纬度" min-width="200" align="center" header-align="center">
           <template #default="{ row }">
-            <span class="coordinate-text">{{ formatCoordinate(row.longitude, row.latitude) }}</span>
+            <span class="coordinate-text">{{ formatCoordinateDisplay(row.longitude, row.latitude, { compact: true }) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="评级" width="100">
+        <el-table-column label="评级" width="100" align="center" header-align="center">
           <template #default="{ row }">
             <el-tag :type="levelTagMap[row.level] || 'info'">{{ row.level || '-' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="total_score" label="评分" width="100" />
-        <el-table-column label="蓝光风险" width="110">
-          <template #default="{ row }">
-            <el-tag :type="row.blue_risk ? 'danger' : 'success'">{{ row.blue_risk ? '是' : '否' }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="创建时间" min-width="180">
+        <el-table-column prop="total_score" label="评分" width="100" align="center" header-align="center" />
+        <el-table-column label="创建时间" min-width="180" align="center" header-align="center">
           <template #default="{ row }">
             {{ formatDateTime(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="130" align="center" header-align="center">
           <template #default="{ row }">
             <el-button class="table-action-btn" @click="goDetail(row.task_id)">查看报告</el-button>
           </template>

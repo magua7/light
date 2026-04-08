@@ -31,11 +31,23 @@ class TaskService:
         latitude: float,
         location_name: str | None,
         remark: str | None,
-        east_image: UploadFile,
-        south_image: UploadFile,
-        west_image: UploadFile,
-        north_image: UploadFile,
+        images: list[UploadFile] | None = None,
+        east_image: UploadFile | None = None,
+        south_image: UploadFile | None = None,
+        west_image: UploadFile | None = None,
+        north_image: UploadFile | None = None,
     ) -> dict:
+        uploaded_files = self.collect_uploaded_files(
+            images=images,
+            east_image=east_image,
+            south_image=south_image,
+            west_image=west_image,
+            north_image=north_image,
+        )
+
+        if len(uploaded_files) < 4:
+            raise HTTPException(status_code=400, detail="请最少上传四张夜景图片")
+
         task_no = f"LP{datetime.now().strftime('%Y%m%d%H%M%S%f')[:17]}"
         geo_info = self.geo_service.resolve_location(longitude, latitude, location_name)
 
@@ -50,15 +62,17 @@ class TaskService:
         db.add(task)
         db.flush()
 
-        saved_images: dict[str, str] = {}
-        for direction, file_obj in {
-            "east": east_image,
-            "south": south_image,
-            "west": west_image,
-            "north": north_image,
-        }.items():
+        saved_images: list[dict] = []
+        for index, file_obj in enumerate(uploaded_files, start=1):
+            direction = self.resolve_image_direction(file_obj, index)
             saved = save_upload_file(file_obj, task_no, direction)
-            saved_images[direction] = saved["file_path"]
+            saved_images.append(
+                {
+                    "direction": direction,
+                    "file_path": saved["file_path"],
+                    "original_name": saved["original_name"],
+                }
+            )
             db.add(
                 DetectionImage(
                     task_id=task.id,
@@ -68,12 +82,7 @@ class TaskService:
                 )
             )
 
-        ai_result = self.ai_service.analyze_images(
-            saved_images["east"],
-            saved_images["south"],
-            saved_images["west"],
-            saved_images["north"],
-        )
+        ai_result = self.ai_service.analyze_images(image_items=saved_images)
         satellite_info = self.satellite_service.get_satellite_info(longitude, latitude)
         ecology_info = self.ecology_service.get_ecology_info(longitude, latitude)
         scoring = self.scoring_service.calculate_scores(ai_result, satellite_info, ecology_info)
@@ -117,6 +126,24 @@ class TaskService:
         db.commit()
         db.refresh(task)
         return self.get_task_detail(db, task.id)
+
+    def collect_uploaded_files(
+        self,
+        *,
+        images: list[UploadFile] | None,
+        east_image: UploadFile | None,
+        south_image: UploadFile | None,
+        west_image: UploadFile | None,
+        north_image: UploadFile | None,
+    ) -> list[UploadFile]:
+        if images:
+            return [item for item in images if item and getattr(item, "filename", None)]
+
+        legacy_files = [east_image, south_image, west_image, north_image]
+        return [item for item in legacy_files if item and getattr(item, "filename", None)]
+
+    def resolve_image_direction(self, _upload_file: UploadFile, index: int) -> str:
+        return f"image_{index}"
 
     def get_task_detail(self, db: Session, task_id: int) -> dict:
         task = db.query(DetectionTask).filter(DetectionTask.id == task_id).first()
