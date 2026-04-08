@@ -63,44 +63,21 @@ body {
   position: relative;
   font-family: var(--font-main);
   color: var(--text-main);
-  background:
-    radial-gradient(circle at 18% 18%, rgba(196, 157, 103, 0.08), transparent 22%),
-    radial-gradient(circle at 82% 22%, rgba(143, 156, 172, 0.08), transparent 18%),
-    linear-gradient(180deg, #0a1017 0%, #0d1118 42%, #0b1016 100%);
+  background: #050912;
   overflow-x: hidden;
 }
 
 body::before,
 body::after {
-  content: '';
+  content: none;
   position: fixed;
   inset: 0;
   pointer-events: none;
 }
 
-body::before {
-  z-index: -2;
-  opacity: 0.55;
-  background:
-    radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 28% 76%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 44% 16%, rgba(255, 255, 255, 0.12) 0 1.2px, transparent 1.7px),
-    radial-gradient(circle at 62% 34%, rgba(255, 255, 255, 0.12) 0 1.2px, transparent 1.6px),
-    radial-gradient(circle at 78% 68%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 88% 24%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 16% 88%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px);
-  background-size: 100% 100%;
-}
-
-body::after {
-  z-index: -1;
-  background:
-    linear-gradient(180deg, rgba(7, 11, 17, 0.42) 0%, rgba(7, 11, 17, 0.56) 100%);
-}
-
 #app {
   position: relative;
-  isolation: isolate;
+  min-height: 100vh;
 }
 
 a {
@@ -117,16 +94,15 @@ a {
 }
 
 .app-stage {
-  background: rgba(10, 14, 20, 0.42);
-  backdrop-filter: blur(4px);
+  background: rgba(8, 12, 18, 0.06);
 }
 
 .app-aside {
   position: relative;
-  background: rgba(9, 13, 18, 0.78);
+  background: rgba(9, 13, 18, 0.46);
   color: var(--text-main);
   border-right: 1px solid var(--line-soft);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .brand-wrap {
@@ -204,7 +180,7 @@ a {
   bottom: 26px;
   padding: 16px 18px;
   border-radius: 18px;
-  background: var(--bg-panel);
+  background: rgba(29, 35, 43, 0.74);
   border: 1px solid var(--line-soft);
 }
 
@@ -226,9 +202,9 @@ a {
   justify-content: space-between;
   min-height: 88px;
   padding: 18px 28px;
-  background: rgba(12, 17, 24, 0.72);
+  background: rgba(12, 17, 24, 0.3);
   border-bottom: 1px solid var(--line-soft);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -260,7 +236,7 @@ a {
 .header-userbox {
   padding: 10px 14px;
   border-radius: 14px;
-  background: var(--bg-panel);
+  background: rgba(29, 35, 43, 0.72);
   border: 1px solid var(--line-soft);
 }
 
@@ -281,7 +257,7 @@ a {
   padding: 0 16px;
   border-radius: 12px;
   border: 1px solid var(--line-soft);
-  background: var(--bg-panel);
+  background: rgba(29, 35, 43, 0.72);
   color: var(--text-sub);
 }
 
@@ -346,9 +322,10 @@ a {
 .panel-card {
   overflow: hidden;
   border-radius: var(--radius-large);
-  background: var(--bg-panel);
+  background: rgba(29, 35, 43, 0.74);
   border: 1px solid var(--line-soft);
   box-shadow: var(--shadow-main);
+  backdrop-filter: blur(10px);
 }
 
 .panel-head {
@@ -398,9 +375,10 @@ a {
   overflow: hidden;
   padding: 24px;
   border-radius: var(--radius-large);
-  background: var(--bg-panel-strong);
+  background: rgba(36, 43, 52, 0.72);
   border: 1px solid var(--line-soft);
   box-shadow: var(--shadow-main);
+  backdrop-filter: blur(10px);
 }
 
 .stat-bar {
@@ -441,8 +419,9 @@ a {
 .metric-box {
   padding: 20px 22px;
   border-radius: 20px;
-  background: var(--bg-panel);
+  background: rgba(29, 35, 43, 0.68);
   border: 1px solid var(--line-soft);
+  backdrop-filter: blur(8px);
 }
 
 .metric-label {
@@ -467,7 +446,8 @@ a {
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid var(--line-soft);
-  background: var(--bg-panel-strong);
+  background: rgba(36, 43, 52, 0.72);
+  backdrop-filter: blur(8px);
 }
 
 .image-card__media {

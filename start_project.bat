@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableExtensions
-title Light Inspector Launcher
+title Project Launcher
 
 if not exist "%~dp0start_backend.bat" (
   echo [ERROR] start_backend.bat was not found.
@@ -14,11 +14,15 @@ if not exist "%~dp0start_frontend.bat" (
   exit /b 1
 )
 
-echo Starting LightInspector...
+echo [1/3] Starting backend window...
+start "" "%ComSpec%" /k call "%~dp0start_backend.bat"
 
-start "Light Inspector Backend" "%ComSpec%" /k call "%~dp0start_backend.bat"
+echo [2/3] Waiting for backend startup...
 timeout /t 3 /nobreak >nul
-start "Light Inspector Frontend" "%ComSpec%" /k call "%~dp0start_frontend.bat"
+
+echo [3/3] Starting frontend window...
+start "" "%ComSpec%" /k call "%~dp0start_frontend.bat"
+
 timeout /t 6 /nobreak >nul
 start "" "http://127.0.0.1:5173"
 

@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { checkBackendHealth, loginAccount, registerAccount } from '../api/auth'
 import { persistAuth } from '../utils/auth'
-import { BRAND_FULL_NAME, BRAND_SLOGAN } from '../utils/dicts'
+import { BRAND_FORMAL_NAME, BRAND_SHORT_NAME, BRAND_SLOGAN } from '../utils/dicts'
 
 const route = useRoute()
 const router = useRouter()
@@ -115,19 +115,26 @@ async function handleRegister() {
 
 <template>
   <div class="login-page">
-    <div class="login-page__glow login-page__glow--left"></div>
-    <div class="login-page__glow login-page__glow--right"></div>
-
     <div class="login-shell">
       <section class="login-hero">
         <div class="login-badge">
           <el-icon><StarFilled /></el-icon>
         </div>
-        <h1 class="login-title">{{ BRAND_FULL_NAME }}</h1>
-        <p class="login-subtitle">{{ BRAND_SLOGAN }}</p>
+
+        <div class="login-copy">
+          <div class="login-kicker">系统入口</div>
+          <h1 class="login-wordmark">{{ BRAND_SHORT_NAME }}</h1>
+          <p class="login-title-detail">{{ BRAND_FORMAL_NAME }}</p>
+          <p class="login-subtitle">{{ BRAND_SLOGAN }}</p>
+        </div>
       </section>
 
       <section class="login-panel">
+        <div class="login-panel__head">
+          <div class="login-panel__eyebrow">欢迎使用</div>
+          <div class="login-panel__title">登录系统</div>
+        </div>
+
         <el-tabs v-model="activeTab" stretch class="auth-tabs">
           <el-tab-pane label="登录" name="login">
             <el-form
@@ -234,60 +241,50 @@ async function handleRegister() {
 .login-page {
   position: relative;
   min-height: 100vh;
-  padding: 48px 24px;
+  padding: 40px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-}
-
-.login-page__glow {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(72px);
-  opacity: 0.32;
-}
-
-.login-page__glow--left {
-  width: 440px;
-  height: 440px;
-  left: -120px;
-  top: 80px;
-  background: rgba(226, 232, 244, 0.08);
-}
-
-.login-page__glow--right {
-  width: 360px;
-  height: 360px;
-  right: -80px;
-  bottom: 40px;
-  background: rgba(196, 157, 103, 0.12);
 }
 
 .login-shell {
   position: relative;
   z-index: 1;
-  width: min(1120px, 100%);
+  width: min(1128px, 100%);
   display: grid;
-  grid-template-columns: 1.15fr 420px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 0.98fr) minmax(392px, 440px);
+  gap: 36px;
+  align-items: center;
 }
 
 .login-hero,
 .login-panel {
-  padding: 40px;
-  border-radius: 30px;
-  background: rgba(12, 16, 22, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(16px);
+  padding: 40px 38px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
 }
 
 .login-hero {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-height: 500px;
+  background:
+    linear-gradient(160deg, rgba(14, 19, 26, 0.72) 0%, rgba(11, 16, 22, 0.58) 100%);
+}
+
+.login-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 44px 42px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(196, 157, 103, 0.18) 0%, rgba(196, 157, 103, 0) 72%);
+  pointer-events: none;
 }
 
 .login-badge {
@@ -303,31 +300,83 @@ async function handleRegister() {
   font-size: 24px;
 }
 
-.login-title {
-  margin: 26px 0 14px;
-  max-width: 11.5em;
+.login-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 500px;
+  margin-top: 28px;
+}
+
+.login-kicker {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-sub);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.login-wordmark {
+  margin: 0;
   color: var(--text-main);
-  font-size: clamp(2rem, 2.1vw + 0.8rem, 3rem);
-  line-height: 1.28;
-  letter-spacing: 0;
-  text-wrap: balance;
-  word-break: keep-all;
+  font-size: clamp(2.25rem, 1.7vw + 1rem, 3.35rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.015em;
+}
+
+.login-title-detail {
+  margin: 0;
+  max-width: 17em;
+  color: #edf2f8;
+  font-size: clamp(1rem, 0.42vw + 0.94rem, 1.22rem);
+  font-weight: 600;
+  line-height: 1.76;
+  text-wrap: pretty;
 }
 
 .login-subtitle {
   margin: 0;
-  max-width: 22em;
+  max-width: 25em;
   color: var(--text-sub);
-  font-size: 16px;
-  line-height: 1.9;
+  font-size: 14px;
+  line-height: 1.92;
 }
 
 .login-panel {
-  align-self: center;
+  width: 100%;
+  justify-self: end;
+  background:
+    linear-gradient(180deg, rgba(11, 15, 22, 0.88) 0%, rgba(12, 16, 22, 0.8) 100%);
+}
+
+.login-panel__head {
+  margin-bottom: 24px;
+}
+
+.login-panel__eyebrow {
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.login-panel__title {
+  margin-top: 10px;
+  color: var(--text-main);
+  font-size: 26px;
+  font-weight: 700;
 }
 
 .auth-form {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .auth-form__item {
@@ -372,7 +421,7 @@ async function handleRegister() {
 }
 
 :deep(.auth-tabs .el-tabs__header) {
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 :deep(.auth-tabs .el-tabs__nav-wrap::after) {
@@ -395,18 +444,21 @@ async function handleRegister() {
 @media (max-width: 960px) {
   .login-shell {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .login-hero,
   .login-panel {
-    padding: 28px;
+    padding: 30px 28px;
   }
 
   .login-hero {
-    min-height: 280px;
+    min-height: 320px;
   }
 
-  .login-title {
+  .login-copy,
+  .login-title-detail,
+  .login-subtitle {
     max-width: none;
   }
 }

@@ -1,6 +1,7 @@
 export const BRAND_FULL_NAME = '净光物联城市光污染多模态感知监测与智能评级系统'
 export const BRAND_SHORT_NAME = '净光物联'
 export const BRAND_NAV_NAME = '城市光污染监测'
+export const BRAND_FORMAL_NAME = '城市光污染多模态感知监测与智能评级系统'
 export const BRAND_SLOGAN = '少一分多余光亮，多一分星空浪漫'
 
 export const analysisDirections = ['east', 'south', 'west', 'north']
