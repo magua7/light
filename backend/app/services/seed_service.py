@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -12,6 +13,9 @@ from app.services.ecology_service import EcologyService
 from app.services.geo_service import GeoService
 from app.services.satellite_service import SatelliteService
 from app.services.scoring_service import ScoringService
+
+
+logger = logging.getLogger(__name__)
 
 
 class SeedService:
@@ -39,22 +43,27 @@ class SeedService:
         self.scoring_service = ScoringService()
 
     def seed_demo_data(self, db: Session) -> None:
-        demo_tasks = (
-            db.query(DetectionTask)
-            .filter(DetectionTask.task_no.like("DEMO%"))
-            .order_by(DetectionTask.id.asc())
-            .all()
-        )
+        try:
+            demo_tasks = (
+                db.query(DetectionTask)
+                .filter(DetectionTask.task_no.like("DEMO%"))
+                .order_by(DetectionTask.id.asc())
+                .all()
+            )
 
-        if demo_tasks:
-            self.sync_demo_tasks(db, demo_tasks)
-            return
+            if demo_tasks:
+                self.sync_demo_tasks(db, demo_tasks)
+                return
 
-        exists = db.query(func.count(DetectionTask.id)).scalar() or 0
-        if exists > 0:
-            return
+            exists = db.query(func.count(DetectionTask.id)).scalar() or 0
+            if exists > 0:
+                return
 
-        self.sync_demo_tasks(db, [])
+            self.sync_demo_tasks(db, [])
+        except Exception:
+            db.rollback()
+            logger.exception("Seed demo data failed during application startup")
+            raise
 
     def sync_demo_tasks(self, db: Session, demo_tasks: list[DetectionTask]) -> None:
         target_count = len(self.demo_points)
@@ -71,7 +80,12 @@ class SeedService:
             else:
                 task = DetectionTask(
                     task_no=f"DEMO{datetime.now().strftime('%Y%m%d')}{index:03d}",
+                    location_name=point["location_name"],
+                    longitude=point["longitude"],
+                    latitude=point["latitude"],
+                    remark=point["remark"],
                     status="completed",
+                    blue_risk=False,
                 )
                 db.add(task)
                 db.flush()
