@@ -78,8 +78,7 @@ onMounted(loadTasks)
       <div>
         <div class="page-title">历史记录</div>
         <div class="page-desc">
-          回看已完成的检测任务，支持按地点、评级和时间范围筛选，
-          便于在演示时快速定位代表性样本并进入报告页。
+          回看已完成的检测任务，支持按地点、评级和时间范围筛选。
         </div>
       </div>
     </div>
@@ -112,7 +111,7 @@ onMounted(loadTasks)
       </div>
     </PanelCard>
 
-    <PanelCard title="任务列表" subtitle="保留经纬度、等级、蓝光风险等核心信息，适合投屏查看。">
+    <PanelCard title="任务列表" subtitle="保留经纬度、等级、蓝光风险等核心信息。">
       <template #extra>
         <span class="panel-note">共 {{ total }} 条</span>
       </template>

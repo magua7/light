@@ -54,8 +54,8 @@ const typeOption = computed(() => ({
   series: [
     {
       type: 'pie',
-      radius: ['48%', '72%'],
-      center: ['50%', '42%'],
+      radius: '72%',
+      center: ['50%', '46%'],
       label: {
         color: '#d2ccc1',
         formatter: '{b}: {d}%'
@@ -97,7 +97,7 @@ const summaryBullets = computed(() => {
   )
 
   if (detail.value?.level) {
-    bullets.push(`综合评级结果为“${detail.value.level}”，建议结合总得分与治理建议进行答辩讲解。`)
+    bullets.push(`综合评级结果为“${detail.value.level}”，可结合总得分与治理建议综合判断。`)
   }
 
   return bullets
@@ -125,7 +125,7 @@ watch(() => route.params.id, loadDetail)
     <div class="page-head">
       <div>
         <div class="page-title">检测报告</div>
-        <div class="page-desc">汇总点位信息、识别摘要与治理建议，便于答辩展示本次样本结果。</div>
+        <div class="page-desc">汇总点位信息、识别摘要与治理建议。</div>
       </div>
       <div class="page-actions">
         <el-button @click="goHistory">返回历史记录</el-button>
