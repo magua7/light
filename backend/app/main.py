@@ -13,14 +13,11 @@ from app.routers.dashboard import router as dashboard_router
 from app.routers.health import router as health_router
 from app.routers.tasks import router as tasks_router
 from app.routers.warnings import router as warnings_router
-from app.services.seed_service import SeedService
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
-    with SessionLocal() as db:
-        SeedService().seed_demo_data(db)
     yield
 
 

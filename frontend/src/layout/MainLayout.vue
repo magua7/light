@@ -66,7 +66,7 @@ async function handleLogout() {
         </el-menu-item>
         <el-menu-item index="/tasks/history">
           <el-icon><Opportunity /></el-icon>
-          <span>历史记录</span>
+          <span>检测报告</span>
         </el-menu-item>
         <el-menu-item index="/map-monitor">
           <el-icon><Location /></el-icon>
@@ -79,8 +79,8 @@ async function handleLogout() {
       </el-menu>
 
       <div class="aside-footer">
-        <div class="aside-footer__label">示例区域</div>
-        <div class="aside-footer__value">湖南 · 长沙夜间光环境</div>
+        <div class="aside-footer__label">系统模式</div>
+        <div class="aside-footer__value">正式监测环境</div>
       </div>
     </el-aside>
 

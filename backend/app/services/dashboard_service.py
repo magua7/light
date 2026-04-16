@@ -5,6 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models import DetectionTask, WarningRecord
+from app.utils.coordinates import normalize_coordinate_value
 
 
 class DashboardService:
@@ -99,6 +100,8 @@ class DashboardService:
             payload = json.loads(task.result.ai_summary_json)
             type_count = payload.get("ai", {}).get("summary", {}).get("type_count", {})
             for label, value in type_count.items():
+                if value <= 0:
+                    continue
                 type_counter[label] = type_counter.get(label, 0) + value
 
         return [{"name": key, "value": value} for key, value in type_counter.items()]
@@ -110,8 +113,8 @@ class DashboardService:
                 "task_id": task.id,
                 "task_no": task.task_no,
                 "location_name": task.location_name,
-                "longitude": task.longitude,
-                "latitude": task.latitude,
+                "longitude": normalize_coordinate_value(task.longitude),
+                "latitude": normalize_coordinate_value(task.latitude),
                 "level": task.level,
                 "total_score": task.total_score,
                 "blue_risk": task.blue_risk,

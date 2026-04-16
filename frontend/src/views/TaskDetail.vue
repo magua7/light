@@ -207,17 +207,6 @@ watch(() => route.params.id, loadDetail)
       <PanelCard title="识别摘要">
         <div class="summary-layout">
           <div class="summary-overview">
-            <div class="summary-keywords">
-              <el-tag
-                v-for="item in typeEntries"
-                :key="item.key"
-                effect="plain"
-                class="summary-keywords__tag"
-              >
-                {{ item.label }} · {{ item.value }}
-              </el-tag>
-            </div>
-
             <ul class="summary-bullets">
               <li v-for="item in summaryBullets" :key="item">{{ item }}</li>
             </ul>
@@ -310,16 +299,6 @@ watch(() => route.params.id, loadDetail)
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-
-.summary-keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.summary-keywords__tag {
-  margin: 0;
 }
 
 .summary-bullets {

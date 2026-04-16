@@ -3,8 +3,8 @@ import math
 
 class SatelliteService:
     """
-    卫星夜光数据服务 mock 层。
-    后续可替换为真实遥感平台或 API。
+    卫星夜光评估服务。
+    当前使用本地规则兜底，可在后续接入真实遥感平台或 API。
     """
 
     def get_satellite_info(self, longitude: float, latitude: float) -> dict:
@@ -24,5 +24,5 @@ class SatelliteService:
             "brightness_value": brightness_value,
             "satellite_score": satellite_score,
             "brightness_level": brightness_level,
-            "source": "mock_satellite_service",
+            "source": "local_satellite_service",
         }

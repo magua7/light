@@ -76,7 +76,7 @@ onMounted(loadTasks)
   <div class="page-view">
     <div class="page-head">
       <div>
-        <div class="page-title">历史记录</div>
+        <div class="page-title">检测报告</div>
         <div class="page-desc">
           回看已完成的检测任务，支持按地点、评级和时间范围筛选。
         </div>

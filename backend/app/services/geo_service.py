@@ -3,8 +3,8 @@ import math
 
 class GeoService:
     """
-    地理信息服务 mock 层。
-    后续可替换为真实 GIS 或逆地理编码接口。
+    地理信息解析服务。
+    当前使用本地规则兜底，可在后续接入真实 GIS 或逆地理编码接口。
     """
 
     region_names = [

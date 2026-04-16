@@ -51,6 +51,8 @@ export const chartPalette = {
   success: '#6d9776'
 }
 
+export const coordinateInputPattern = /^-?\d+\.\d{4}$/
+
 export function buildDocumentTitle(pageTitle = '') {
   return pageTitle ? `${pageTitle} - ${BRAND_FULL_NAME}` : BRAND_FULL_NAME
 }
@@ -85,7 +87,7 @@ export function formatImageUrl(path) {
 
 export function formatCoordinate(longitude, latitude) {
   if (longitude == null || latitude == null) return '-'
-  return `${Number(longitude).toFixed(3)}, ${Number(latitude).toFixed(3)}`
+  return `${Number(longitude).toFixed(4)}, ${Number(latitude).toFixed(4)}`
 }
 
 export function formatCoordinateDisplay(longitude, latitude, options = {}) {
@@ -96,7 +98,16 @@ export function formatCoordinateDisplay(longitude, latitude, options = {}) {
   const lonSuffix = lon >= 0 ? 'E' : 'W'
   const latSuffix = lat >= 0 ? 'N' : 'S'
   if (options.compact) {
-    return `${Math.abs(lon).toFixed(2)}${lonSuffix} / ${Math.abs(lat).toFixed(2)}${latSuffix}`
+    return `${Math.abs(lon).toFixed(4)}${lonSuffix} / ${Math.abs(lat).toFixed(4)}${latSuffix}`
   }
-  return `经度 ${Math.abs(lon).toFixed(2)}${lonSuffix}，纬度 ${Math.abs(lat).toFixed(2)}${latSuffix}`
+  return `经度 ${Math.abs(lon).toFixed(4)}${lonSuffix}，纬度 ${Math.abs(lat).toFixed(4)}${latSuffix}`
+}
+
+export function isStrictCoordinate(value) {
+  return coordinateInputPattern.test(String(value ?? '').trim())
+}
+
+export function normalizeCoordinateInput(value) {
+  if (!isStrictCoordinate(value)) return null
+  return Number(value).toFixed(4)
 }

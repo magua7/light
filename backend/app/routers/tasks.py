@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.services.task_service import TaskService
+from app.utils.coordinates import parse_coordinate_text
 from app.utils.response import success_response
 
 
@@ -12,8 +13,8 @@ task_service = TaskService()
 
 @router.post("/create")
 def create_task(
-    longitude: float = Form(...),
-    latitude: float = Form(...),
+    longitude: str = Form(...),
+    latitude: str = Form(...),
     location_name: str | None = Form(default=None),
     remark: str | None = Form(default=None),
     images: list[UploadFile] | None = File(default=None),
@@ -23,10 +24,26 @@ def create_task(
     north_image: UploadFile | None = File(default=None),
     db: Session = Depends(get_db),
 ):
+    try:
+        normalized_longitude = parse_coordinate_text(
+            longitude,
+            field_label="经度",
+            min_value=-180,
+            max_value=180,
+        )
+        normalized_latitude = parse_coordinate_text(
+            latitude,
+            field_label="纬度",
+            min_value=-90,
+            max_value=90,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     data = task_service.create_task(
         db,
-        longitude=longitude,
-        latitude=latitude,
+        longitude=normalized_longitude,
+        latitude=normalized_latitude,
         location_name=location_name,
         remark=remark,
         images=images,

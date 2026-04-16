@@ -6,11 +6,13 @@ import { useRouter } from 'vue-router'
 
 import { createTask } from '../api/tasks'
 import PanelCard from '../components/PanelCard.vue'
+import { normalizeCoordinateInput } from '../utils/dicts'
 
 const router = useRouter()
 const loading = ref(false)
 const fileInputRef = ref(null)
 const dragActive = ref(false)
+const formRef = ref(null)
 let uploadSeed = 0
 
 const form = reactive({
@@ -23,6 +25,33 @@ const form = reactive({
 const uploadFiles = ref([])
 
 const hasEnoughImages = computed(() => uploadFiles.value.length >= 4)
+
+function buildCoordinateValidator(fieldName, minValue, maxValue) {
+  return (_rule, value, callback) => {
+    const normalized = normalizeCoordinateInput(value)
+    if (!normalized) {
+      callback(new Error(`${fieldName}必须为小数点后恰好 4 位`))
+      return
+    }
+    const numeric = Number(normalized)
+    if (numeric < minValue || numeric > maxValue) {
+      callback(new Error(`${fieldName}超出范围，应位于 ${minValue} 到 ${maxValue} 之间`))
+      return
+    }
+    callback()
+  }
+}
+
+const rules = {
+  longitude: [
+    { required: true, message: '请输入经度', trigger: 'blur' },
+    { validator: buildCoordinateValidator('经度', -180, 180), trigger: ['blur', 'change'] }
+  ],
+  latitude: [
+    { required: true, message: '请输入纬度', trigger: 'blur' },
+    { validator: buildCoordinateValidator('纬度', -90, 90), trigger: ['blur', 'change'] }
+  ]
+}
 
 function selectAllInput(event) {
   event?.target?.select?.()
@@ -74,17 +103,17 @@ function removeUpload(id) {
   uploadFiles.value = uploadFiles.value.filter((item) => item.id !== id)
 }
 
-function parseCoordinate(value) {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : null
+function normalizeCoordinateField(field) {
+  const normalized = normalizeCoordinateInput(form[field])
+  if (normalized) {
+    form[field] = normalized
+  }
 }
 
 async function submitTask() {
-  const longitude = parseCoordinate(form.longitude)
-  const latitude = parseCoordinate(form.latitude)
-
-  if (longitude == null || latitude == null) {
-    ElMessage.warning('请填写完整且有效的经纬度信息')
+  const isValid = await formRef.value?.validate?.().catch(() => false)
+  if (!isValid) {
+    ElMessage.warning('请按要求填写经纬度，且必须保留 4 位小数')
     return
   }
 
@@ -93,9 +122,16 @@ async function submitTask() {
     return
   }
 
+  const longitude = normalizeCoordinateInput(form.longitude)
+  const latitude = normalizeCoordinateInput(form.latitude)
+  if (!longitude || !latitude) {
+    ElMessage.warning('经纬度必须为小数点后恰好 4 位')
+    return
+  }
+
   const payload = new FormData()
-  payload.append('longitude', String(longitude))
-  payload.append('latitude', String(latitude))
+  payload.append('longitude', longitude)
+  payload.append('latitude', latitude)
   if (form.location_name.trim()) payload.append('location_name', form.location_name.trim())
   if (form.remark.trim()) payload.append('remark', form.remark.trim())
 
@@ -133,18 +169,28 @@ onBeforeUnmount(() => {
     </div>
 
     <PanelCard title="监测点信息">
-      <el-form label-width="96px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="96px">
         <div class="create-form-grid">
           <el-form-item label="地点名称" class="create-form-grid__wide">
             <el-input v-model="form.location_name" placeholder="例如：五一广场商圈、湘江观景长廊" />
           </el-form-item>
 
-          <el-form-item label="经度">
-            <el-input v-model="form.longitude" placeholder="请输入经度" @focus="selectAllInput" />
+          <el-form-item label="经度" prop="longitude">
+            <el-input
+              v-model="form.longitude"
+              placeholder="请输入经度"
+              @focus="selectAllInput"
+              @blur="normalizeCoordinateField('longitude')"
+            />
           </el-form-item>
 
-          <el-form-item label="纬度">
-            <el-input v-model="form.latitude" placeholder="请输入纬度" @focus="selectAllInput" />
+          <el-form-item label="纬度" prop="latitude">
+            <el-input
+              v-model="form.latitude"
+              placeholder="请输入纬度"
+              @focus="selectAllInput"
+              @blur="normalizeCoordinateField('latitude')"
+            />
           </el-form-item>
 
           <div class="coordinate-hint">默认东经和北纬</div>
@@ -233,6 +279,10 @@ onBeforeUnmount(() => {
   margin: -8px 0 14px 96px;
   color: var(--text-muted);
   font-size: 12px;
+}
+
+:deep(.el-form-item.is-error .el-input__wrapper) {
+  box-shadow: 0 0 0 1px rgba(241, 102, 102, 0.88) inset;
 }
 
 .upload-headline {

@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime, time
 from typing import Optional
 
@@ -7,12 +8,23 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.models import DetectionImage, DetectionResult, DetectionTask, WarningRecord
+from app.integrations.light_inspector import (
+    CoordinateValidationError,
+    DependencyUnavailableError,
+    ImageProcessingError,
+    LightInspectorError,
+    MissingAssetError,
+)
 from app.services.ai_service import AIService
 from app.services.ecology_service import EcologyService
 from app.services.geo_service import GeoService
 from app.services.satellite_service import SatelliteService
 from app.services.scoring_service import ScoringService
+from app.utils.coordinates import normalize_coordinate_value
 from app.utils.file import build_file_url, save_upload_file
+
+
+logger = logging.getLogger(__name__)
 
 
 class TaskService:
@@ -37,6 +49,9 @@ class TaskService:
         west_image: UploadFile | None = None,
         north_image: UploadFile | None = None,
     ) -> dict:
+        longitude = normalize_coordinate_value(longitude)
+        latitude = normalize_coordinate_value(latitude)
+
         uploaded_files = self.collect_uploaded_files(
             images=images,
             east_image=east_image,
@@ -82,7 +97,23 @@ class TaskService:
                 )
             )
 
-        ai_result = self.ai_service.analyze_images(image_items=saved_images)
+        try:
+            ai_result = self.ai_service.analyze_images(
+                image_items=saved_images,
+                longitude=longitude,
+                latitude=latitude,
+            )
+        except CoordinateValidationError as exc:
+            db.rollback()
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except ImageProcessingError as exc:
+            db.rollback()
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except (MissingAssetError, DependencyUnavailableError, LightInspectorError, ValueError) as exc:
+            db.rollback()
+            logger.exception("Real model analysis failed for task %s", task_no)
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+
         satellite_info = self.satellite_service.get_satellite_info(longitude, latitude)
         ecology_info = self.ecology_service.get_ecology_info(longitude, latitude)
         scoring = self.scoring_service.calculate_scores(ai_result, satellite_info, ecology_info)
@@ -210,8 +241,8 @@ class TaskService:
             "id": task.id,
             "task_no": task.task_no,
             "location_name": task.location_name,
-            "longitude": task.longitude,
-            "latitude": task.latitude,
+            "longitude": normalize_coordinate_value(task.longitude),
+            "latitude": normalize_coordinate_value(task.latitude),
             "status": task.status,
             "total_score": task.total_score,
             "level": task.level,
@@ -234,14 +265,15 @@ class TaskService:
         type_distribution = [
             {"name": key, "value": value}
             for key, value in ai_result.get("summary", {}).get("type_count", {}).items()
+            if value > 0
         ]
 
         return {
             "id": task.id,
             "task_no": task.task_no,
             "location_name": task.location_name,
-            "longitude": task.longitude,
-            "latitude": task.latitude,
+            "longitude": normalize_coordinate_value(task.longitude),
+            "latitude": normalize_coordinate_value(task.latitude),
             "remark": task.remark,
             "status": task.status,
             "total_score": task.total_score,
@@ -264,6 +296,7 @@ class TaskService:
             ],
             "direction_summaries": ai_result.get("images", []),
             "type_count": ai_result.get("summary", {}).get("type_count", {}),
+            "analysis_summary": ai_result.get("summary", {}),
             "geo_info": geo_info,
             "satellite_info": satellite_info,
             "ecology_info": ecology_info,
